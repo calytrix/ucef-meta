@@ -1,0 +1,9 @@
+{
+  "js": {
+    "indent_char": " ",
+    "indent_size": 2,
+    "brace_style": "expand",
+    "end_with_newline": true,
+    "wrap_line_length": 120
+  }
+}
