@@ -1,5 +1,22 @@
+<% /* ////////////////////////////////////////////////////////////////////////////////////// */ -%>
+<% /* This template generates the Java code for the implementation of the federate           */ -%>
+<% /* "helper" class located in the "base" package of the generated file set, as indicated   */ -%>
+<% /* by the item marked with '*****' below                                                  */ -%>
+<% /*                                                                                        */ -%>
+<% /*     [top]                                                                              */ -%>
+<% /*         base                                                                           */ -%>
+<% /*             _SomeFederate.java     *****                                               */ -%>
+<% /*         interactions                                                                   */ -%>
+<% /*             SomeInteractionA.java                                                      */ -%>
+<% /*             SomeInteractionB.java                                                      */ -%>
+<% /*             ...                                                                        */ -%>
+<% /*         reflections                                                                    */ -%>
+<% /*             SomeReflectionA.java                                                       */ -%>
+<% /*             SomeReflectionB.java                                                       */ -%>
+<% /*             ...                                                                        */ -%>
+<% /*         SomeFederate.java                                                              */ -%>
+<% /* ////////////////////////////////////////////////////////////////////////////////////// */ -%>
 <%/* group federate;
-
 federate(
         simname,
         melderpackagename,
@@ -16,148 +33,144 @@ federate(
         allobjectdata
 ) ::= <<
 */ -%>
-package <%= groupId %>.<%= classname.toLowerCase() %>;
+/*
+ * This software is contributed as a public service by The National Institute of Standards
+ * and Technology (NIST) and is not subject to U.S. Copyright
+ *
+ * Permission is hereby granted, free of charge, to any person obtaining a copy of this
+ * software and associated documentation files (the "Software"), to deal in the Software
+ * without restriction, including without limitation the rights to use, copy, modify,
+ * merge, publish, distribute, sublicense, and/or sell copies of the Software, and to
+ * permit persons to whom the Software is furnished to do so, subject to the following
+ * conditions:
+ *
+ * The above NIST contribution notice and this permission and disclaimer notice shall be
+ * included in all copies or substantial portions of the Software.
+ *
+ * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED,
+ * INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A
+ * PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT
+ * HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF
+ * CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE
+ * OR THE USE OR OTHER DEALINGS IN THE SOFTWARE. THE AUTHORS OR COPYRIGHT HOLDERS SHALL
+ * NOT HAVE ANY OBLIGATION TO PROVIDE MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR
+ * MODIFICATIONS.
+ */
+package <%= groupId %>.<%= classname.toLowerCase() %>.base;
 
-<% if(publishedinteractiondata.length || subscribedinteractiondata.length || publishedobjectdata.length || subscribedobjectdata.length) { -%>
-import <%= groupId %>.<%= classname.toLowerCase() %>.rti.*;
-<% } -%>
+import gov.nist.ucef.hla.base.HLAInteraction;
+import gov.nist.ucef.hla.base.HLAObject;
+import gov.nist.ucef.hla.ucef.NoOpFederate;
 
-import hla.rti.EventRetractionHandle;
-import hla.rti.LogicalTime;
-import hla.rti.ReceivedInteraction;
+<% if( publishedinteractiondata.length || subscribedinteractiondata.length ){ new Set([...publishedinteractiondata.map(x=>x.name), ...subscribedinteractiondata.map(x=>x.name)].sort()).forEach( function ( intClassName, idx ) { -%>
+import <%= groupId %>.interactions.<%= intClassName %>;
+<% }); } -%>
+<% if( publishedobjectdata.length || subscribedobjectdata.length ){ new Set([...publishedobjectdata.map(x=>x.name), ...subscribedobjectdata.map(x=>x.name)].sort()).forEach( function ( objClassName, idx ) { -%>
+import <%= groupId %>.reflections.<%= objClassName %>;
+<% }); } -%>
 
-import org.cpswt.hla.C2WInteractionRoot;
-import org.cpswt.hla.InteractionRoot;
-import org.cpswt.hla.SubscribedInteractionFilter;
-import org.cpswt.hla.SynchronizedFederate;
+/**
+ *                    ___
+ *                  _/   \_     _     _
+ *                 / \   / \   / \   / \
+ *                ( U )─( C )─( E )─( F )
+ *                 \_/   \_/   \_/   \_/
+ *                <─┴─> <─┴─────┴─────┴─>
+ *               Universal CPS Environment
+ *                     for Federation
+ */
+public class _<%= classname %> extends NoOpFederate
+{
+    //----------------------------------------------------------
+    //                   STATIC VARIABLES
+    //----------------------------------------------------------
 
-import org.cpswt.config.FederateConfig;
-import org.cpswt.utils.CpswtDefaults;
+    //----------------------------------------------------------
+    //                   INSTANCE VARIABLES
+    //----------------------------------------------------------
 
-import org.cpswt.*;
+    //----------------------------------------------------------
+    //                      CONSTRUCTORS
+    //----------------------------------------------------------
+    public _<%= classname %>()
+    {
+        super();
+        <% if(timeconstrained){ -%>enableTimeConstrained();<% } %>
 
-<% if(melderpackagename){ -%>
-import <%= melderpackagename %>.<%= classname %>;
-import <%= melderpackagename %>.<%= classname %>RTIFactory;
-<% } -%>
+        <% if(timeregulating){ -%>enableTimeRegulation(getLookAhead());<% } %>
 
-public class <%= classname %>Base extends <% if(melderpackagename) { %><%= classname %><% }else{ %>SynchronizedFederate<% } %> {
-<% if(melderpackagename){ -%>
-        static {
-                <%= classname %>RTIFactory rtiFactory = new <%= classname %>RTIFactory();
-<% /*allinteractiondata:setfactoryvar()*/ -%>
-                <% allinteractiondata.forEach(function(rticlass){ %>
-                rtiFactory.set_<%= rticlass.name %>Interface( new <%= rticlass.name %>Melder() );<%});%>
-<% /*allobjectdata:setfactoryvar()*/ -%>
-                <% allobjectdata.forEach(function(rticlass){ %>
-                rtiFactory.set_<%= rticlass.name %>Interface( new <%= rticlass.name %>Melder() );<%});%>
-
-                <%= classname %>.set<%= classname %>RTIFactory( rtiFactory );
-        }
-<% } -%>
-    private SubscribedInteractionFilter _subscribedInteractionFilter =
-        new SubscribedInteractionFilter();
-
-    // constructor
-    public <%= classname %>Base(FederateConfig config) throws Exception {
-        super(config);
-        super.createLRC();
-        super.joinFederation();
-<% if(timeconstrained){ -%>
-        enableTimeConstrained();
-<% } -%>
-<% if(timeregulating){ -%>
-        enableTimeRegulation(getLookAhead());
-<% } -%>
-<% if(asynchronousdelivery){ -%>
-        enableAsynchronousDelivery();
-<% } -%>
-
-        // interaction pubsub
-<% /* publishedinteractiondata:pubinter() */ -%>
-<% publishedinteractiondata.forEach(function(interactiondata){ -%>
-        <%= interactiondata.name %>.publish(getLRC());
-<% }); -%>
-<% /* subscribedinteractiondata:subinter() */ -%>
-<% subscribedinteractiondata.forEach(function(interactiondata){ -%>
-        <%= interactiondata.name %>.subscribe(getLRC());
-        _subscribedInteractionFilter.setFedFilters( 
-           <%= interactiondata.name %>.get_handle(),
-           SubscribedInteractionFilter.OriginFedFilter.<%= interactiondata.originFedFilter() %>,
-           SubscribedInteractionFilter.SourceFedFilter.<%= interactiondata.srcFedFilter() %>);
-<% }); -%>
-
-        // object pubsub
-<%/* publishedobjectdata:pubobjectdata() */ -%>
-<% publishedobjectdata.forEach(function(objectdata){ -%>
-<% objectdata.publishedAttributeData.forEach(function(a){ -%>
-        <%= objectdata.name %>.publish_<%= a.name %>();
-<% }); -%>
-        <%= objectdata.name %>.publish(getLRC());
-<% }); -%>
-<%/* subscribedobjectdata:subobjectdata() */ -%>
-<% subscribedobjectdata.forEach(function(objectdata){ -%>
-<% objectdata.subscribedAttributeData.forEach(function(a){ -%>
-        <%= objectdata.name %>.subscribe_<%= a.name %>();
-<% }); -%>
-        <%= objectdata.name %>.subscribe(getLRC());
-<% }); -%>
     }
 
-<%/* publishedinteractiondata:create_interaction() */ -%>
-<%publishedinteractiondata.forEach(function(interaction_data){ -%>
-    public <%= interaction_data.name %> create_<%= interaction_data.name %>() {
-        <%= interaction_data.name%> interaction = new <%= interaction_data.name %>();
-        interaction.set_sourceFed(getFederateId());
-        interaction.set_originFed(getFederateId());
-        return interaction;
-    }
-<% }); -%>
+    //----------------------------------------------------------
+    //                    INSTANCE METHODS
+    //----------------------------------------------------------
 
-<%/* filter_interaction() */ -%>
+    ////////////////////////////////////////////////////////////////////////////////////////////
+    /////////////////////////////////// RTI Callback Methods ///////////////////////////////////
+    ////////////////////////////////////////////////////////////////////////////////////////////
+<% if( subscribedinteractiondata.length > 0 ) { -%>
     @Override
-    public void receiveInteraction(int interactionClass,
-                                   ReceivedInteraction theInteraction,
-                                   byte[] userSuppliedTag) {
-        InteractionRoot interactionRoot =
-            InteractionRoot.create_interaction(interactionClass,
-                                               theInteraction);
-        if (interactionRoot instanceof C2WInteractionRoot) {
-            C2WInteractionRoot c2wInteractionRoot =
-                (C2WInteractionRoot)interactionRoot;
+    public void receiveInteraction( HLAInteraction hlaInteraction )
+    {
+        String interactionClassName = hlaInteraction.getInteractionClassName();
+        <% subscribedinteractiondata.map(x=>x.name).forEach( function ( className, idx ) { -%>
+<% if( idx > 0 ) { -%>else <% } -%>if( <%= className %>.interactionClassName().equals( interactionClassName ) )
 
-            // Filter interaction if src/origin fed requirements (if any)
-            // are not met
-            if (_subscribedInteractionFilter.filterC2WInteraction
-                (getFederateId(), c2wInteractionRoot)) {
-                return;
-            }
+        {
+            receive<%= className %>Interaction( new <%= className %>( hlaInteraction ) );
         }
-        super.receiveInteraction(interactionClass, theInteraction,
-                                 userSuppliedTag);
+<% }); -%>
+        else
+        {
+            // this is unexpected - we shouldn't receive any thing we didn't subscribe to
+            System.err.println( String.format( "Received an unexpected interaction of type '%s'",
+                                                interactionClassName ) );
+        }
     }
+<% } -%>
 
+<% if( subscribedobjectdata.length > 0 ) { -%>
     @Override
-    public void receiveInteraction(int interactionClass,
-                                   ReceivedInteraction theInteraction,
-                                   byte[] userSuppliedTag,
-                                   LogicalTime theTime,
-                                   EventRetractionHandle retractionHandle) {
-        InteractionRoot interactionRoot =
-            InteractionRoot.create_interaction(interactionClass,
-                                               theInteraction, theTime);
-        if (interactionRoot instanceof C2WInteractionRoot) {
-            C2WInteractionRoot c2wInteractionRoot =
-                (C2WInteractionRoot)interactionRoot;
-
-            // Filter interaction if src/origin fed requirements (if any)
-            // are not met
-            if (_subscribedInteractionFilter.filterC2WInteraction
-                (getFederateId(), c2wInteractionRoot)) {
-                return;
-            }
+    public void receiveAttributeReflection( HLAObject hlaObject )
+    {
+        String objectClassName = hlaObject.getObjectClassName();
+        <% subscribedobjectdata.map(x=>x.name).forEach( function ( className, idx ) { -%>
+<% if( idx > 0 ) { %>else <% } %>if( <%= className %>.objectClassName().equals( objectClassName ) )
+        {
+            receive<%= className %>Update( new <%= className %>( hlaObject ) );
         }
-        super.receiveInteraction(interactionClass, theInteraction,
-                                 userSuppliedTag, theTime, retractionHandle);
+<%}); -%>
+        else
+        {
+            // this is unexpected - we shouldn't receive any thing we didn't subscribe to
+            System.err.println( String.format( "Received an unexpected attribute reflection of type '%s'",
+                                                objectClassName ) );
+        }
     }
+<% } -%>
+
+    ////////////////////////////////////////////////////////////////////////////////////////////
+    ///////////////////////////////// Internal Utility Methods /////////////////////////////////
+    ////////////////////////////////////////////////////////////////////////////////////////////
+<% if( subscribedobjectdata.length > 0 ) { subscribedobjectdata.forEach( function ( objectData, idx ) { -%>
+    protected <%= objectData.name %> register( <%= objectData.name %> <%= objectData.name.toLowerCase() %> ) { return (<%= objectData.name %>)super.register( <%= objectData.name.toLowerCase() %> ); }
+<% }); } -%>
+
+<% if( subscribedinteractiondata.length > 0 ) { subscribedinteractiondata.map(x=>x.name).forEach( function ( objClassName, idx ) { var objParamName = objClassName.charAt(0).toLowerCase()+objClassName.substr(1); -%>
+    /**
+    * Handle receipt of a {@link <%= objClassName %>} interaction.
+    *
+    * @param <%= objParamName %> the interaction to handle
+    */
+    protected abstract void receive<%= objClassName %>Interaction( <%= objClassName %> <%= objParamName %> );
+<% }); } -%>
+
+<% if( subscribedobjectdata.length > 0 ) { subscribedobjectdata.map(x=>x.name).forEach( function ( objClassName, idx ) { var objParamName = objClassName.charAt(0).toLowerCase()+objClassName.substr(1); -%>
+    /**
+    * Handle receipt of a {@link <%= objClassName %>} object attribute reflection.
+    *
+    * @param <%= objParamName %> the object attribute reflection to handle
+    */
+    protected abstract void receive<%= objClassName %>Update( <%= objClassName %> <%= objParamName %> );
+<% }); } -%>
 }
