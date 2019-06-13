@@ -1,9 +1,7 @@
 /*
-
 JavaRTI.js is used in the define of:
  C2Federates/MapperFederate.js and
  C2Federates/JavaBaseFederate.js
-
 */
 
 define
@@ -22,9 +20,7 @@ define
       var interactionTraverserCheck; // function variable
 
       /***********************************************************************/
-
       /* objectTraverserCheck
-
       Returned Value: none
 
       Called By:
@@ -74,9 +70,7 @@ define
       FederatesExporter.js. It would be nice to have only one, but that requires
       figuring out where to put it and how to refererence it. Using
       self.objectTraverserCheck in this file does not work.
-
       */
-
       objectTraverserCheck = function( /* ARGUMENTS                           */
         federate, /* (object) data in FederateInfos for federate */
         object ) /* (object) object to process                  */
@@ -117,7 +111,6 @@ define
       };
 
       /***********************************************************************/
-
       /* interactionTraverserCheck (function-valued var of top-level function object)
 
       Returned Value: none
@@ -145,7 +138,6 @@ define
       This function is identical to interactionTraverserCheck in
       FederatesExporter.js. It would be nice to have only one, but that
       requires figuring out where to put it and how to refererence it.
-
       */
       interactionTraverserCheck = function( /* ARGUMENTS                       */
         federate, /* (object) data in federateInfos for federate */
@@ -169,25 +161,16 @@ define
       };
 
       /***********************************************************************/
-
       /* JavaRTIFederateExporter
-
       Returned Value: none
-
       Called By: Called automatically when JavaRTI is called (in MapperFederate.js)
-
       */
       JavaRTIFederateExporter = function()
       {
-
         /***********************************************************************/
-
         /* initJavaRTI
-
         Returned Value: none
-
         Called By: MapperFederateExporter (in MapperFederate.js)
-
         */
         this.initJavaRTI = function()
         {
@@ -226,85 +209,35 @@ define
           }
 
           self.javaCorePackageOISpecs = {
-            C2WInteractionRoot:
-            {
-              simname: corePackagePathStr
-            },
-            SimulationControl:
-            {
-              simname: corePackagePathStr
-            },
-            SimEnd:
-            {
-              simname: corePackagePathStr
-            },
-            SimPause:
-            {
-              simname: corePackagePathStr
-            },
-            SimResume:
-            {
-              simname: corePackagePathStr
-            },
-            SimLog:
-            {
-              simname: corePackagePathStr
-            },
-            HighPrio:
-            {
-              simname: corePackagePathStr
-            },
-            MediumPrio:
-            {
-              simname: corePackagePathStr
-            },
-            LowPrio:
-            {
-              simname: corePackagePathStr
-            },
-            VeryLowPrio:
-            {
-              simname: corePackagePathStr
-            },
-            FederateObject:
-            {
-              simname: corePackagePathStr,
-              hlaclassname: 'ObjectRoot.Manager.Federate'
-            },
-            FederateJoinInteraction:
-            {
-              simname: corePackagePathStr
-            },
-            FederateResignInteraction:
-            {
-              simname: corePackagePathStr
-            },
-            OutcomeBase:
-            {
-              simname: corePackagePathStr
-            },
-            ActionBase:
-            {
-              simname: corePackagePathStr
-            }
+            C2WInteractionRoot:        { simname: corePackagePathStr },
+            SimulationControl:         { simname: corePackagePathStr },
+            SimEnd:                    { simname: corePackagePathStr },
+            SimPause:                  { simname: corePackagePathStr },
+            SimResume:                 { simname: corePackagePathStr },
+            SimLog:                    { simname: corePackagePathStr },
+            HighPrio:                  { simname: corePackagePathStr },
+            MediumPrio:                { simname: corePackagePathStr },
+            LowPrio:                   { simname: corePackagePathStr },
+            VeryLowPrio:               { simname: corePackagePathStr },
+            FederateObject:            { simname: corePackagePathStr,
+                                         hlaclassname: 'ObjectRoot.Manager.Federate' },
+            FederateJoinInteraction:   { simname: corePackagePathStr },
+            FederateResignInteraction: { simname: corePackagePathStr },
+            OutcomeBase:               { simname: corePackagePathStr },
+            ActionBase:                { simname: corePackagePathStr }
           };
 
           /***********************************************************************/
-
           /* renderToFile
-
           Returned Value: none
-
           Called By:
             renderNextObjectInCore (which is also the callback argument)
             renderNextInteractionInCore (which is also the callback argument)
-
           This function calls its caller when the function that is the last
           argument to addFile executes. Thus, this function and the caller call
           each other until the caller runs out of models. This function
           should not be called for a model unless it is certain that addFile
           will be called; otherwise, the callback will not occur.
-
           */
           renderToFile = function(
             outFilePath, // full file name of file to write
@@ -313,20 +246,12 @@ define
             artifact, // array of file generating functions
             callback )
           {
-            var context;
-            var packagePath;
-            var fullPath;
             var oattr;
             var datamemberList;
             var template;
             var javaCode;
 
-            context = self.createJavaRTICodeModel();
-            packagePath = outFilePath + "/" +
-              ( self.javaCorePackageOISpecs.hasOwnProperty( model.name ) ?
-                self.javaCorePackageOISpecs[ model.name ][ 'simname' ] :
-                self.projectName );
-            fullPath = packagePath + '/' + model.name + '.java';
+            var context = self.createJavaRTICodeModel();
             context.isinteraction = isInteraction;
             context.simname = self.projectName;
             context.classname = model.name;
@@ -334,7 +259,12 @@ define
             context.parentclassname = model.isroot ? "" : model.basename;
             context.isc2winteractionroot = model.isroot && isInteraction;
 
-            //Override with core specs
+            var packagePath = outFilePath + "/" +
+                ( self.javaCorePackageOISpecs.hasOwnProperty( model.name ) ? self.javaCorePackageOISpecs[ model.name ][ 'simname' ] : self.projectName );
+
+            var fullPath = packagePath + '/' + model.name + '.java';
+
+            // Override with core specs
             if ( self.javaCorePackageOISpecs.hasOwnProperty( model.name ) )
             {
               for ( oattr in self.javaCorePackageOISpecs[ model.name ] )
@@ -454,17 +384,12 @@ define
           }; // end renderToFile
 
           /***********************************************************************/
-
           /* renderNotCoreObjectToFile
-
           Returned Value: none
-
           Called By:
             anonymous function pushed onto the fileGenerators in initJavaRTI
-
           This renders a not-core object to a file for each federate that has a
           publish or subscribe connection to the object.
-
           */
           renderNotCoreObjectToFile = function(
             outFilePath, // full file name of file to write
@@ -568,17 +493,12 @@ define
           }; // end renderNotCoreObjectToFile
 
           /***********************************************************************/
-
           /* renderNotCoreInteractionToFile
-
           Returned Value: none
-
           Called By:
             anonymous function pushed onto the fileGenerators in initJavaRTI
-
           This renders a not-core interaction to a file for each federate that has a
           publish or subscribe connection to the interaction.
-
           */
           renderNotCoreInteractionToFile = function(
             outFilePath, // full file name of file to write
@@ -606,7 +526,7 @@ define
             context.parentclassname = model.isroot ? "" : model.basename;
             context.isc2winteractionroot = model.isroot;
 
-            //Override with core specs
+            // Override with core specs
             if ( self.javaCorePackageOISpecs.hasOwnProperty( model.name ) )
             {
               for ( oattr in self.javaCorePackageOISpecs[ model.name ] )
@@ -683,29 +603,23 @@ define
           }; // end renderNotCoreInteractionToFile
 
           /***********************************************************************/
-
           /*
-
           Begin FOUNDATION RTI
-
           */
-
           foundationDirBasePath = 'java/';
           coreDirSpec = {
             federation_name: "root",
             artifact_name: "",
             language: ""
           };
-          coreDirPath = foundationDirBasePath +
-            ejs.render( self.directoryNameTemplate, coreDirSpec );
+          coreDirPath = foundationDirBasePath + ejs.render( self.directoryNameTemplate, coreDirSpec );
           coreOutFilePath = coreDirPath + MavenPOM.mavenJavaPath;
           eventsDirSpec = {
             federation_name: "base-events",
             artifact_name: "",
             language: ""
           };
-          eventsDirPath = foundationDirBasePath +
-            ejs.render( self.directoryNameTemplate, eventsDirSpec );
+          eventsDirPath = foundationDirBasePath + ejs.render( self.directoryNameTemplate, eventsDirSpec );
           eventsOutFilePath = eventsDirPath + MavenPOM.mavenJavaPath;
 
           foundationPOM = new MavenPOM();
@@ -726,9 +640,7 @@ define
           self.java_core_rtiPOM.dependencies.push( self.corePOM );
 
           /***********************************************************************/
-
           /*
-
           For the federates exporter, in the following "if", the
           self.generateExportPackages is set to
           self.getCurrentConfig().generateExportPackages, which is obtained from
@@ -741,27 +653,18 @@ define
           currently, no core files are generated. The finishExport function in
           FederatesExporter.js runs the corefileGenerators if there are any, but
           currently there are none.
-
           */
           if ( self.generateExportPackages )
           {
-
             /***********************************************************************/
-
             /*
-
             If generating export packages, add to corefileGenerators a POM generator
             using the coreDirPath and self.corePOM.toJSON()
-
             */
             self.corefileGenerators.push( function( artifact, callback )
             {
-              var xmlCode;
-              var fullPath;
-
-              fullPath = coreDirPath + '/pom.xml';
-              xmlCode =
-                self._jsonToXml.convertToString( self.corePOM.toJSON() );
+              var fullPath = coreDirPath + '/pom.xml';
+              var xmlCode = self._jsonToXml.convertToString( self.corePOM.toJSON() );
               console.log( 'calling addFile for: ' + fullPath );
               artifact.addFile( fullPath, xmlCode,
                 function( err )
@@ -779,22 +682,14 @@ define
             } );
 
             /***********************************************************************/
-
             /*
-
             If generating export packages, add to corefileGenerators a POM generator
             using the eventsDirPath and self.java_core_rtiPOM.toJSON()
-
             */
-
             self.corefileGenerators.push( function( artifact, callback )
             {
-              var xmlCode;
-              var fullPath;
-
-              fullPath = eventsDirPath + '/pom.xml';
-              xmlCode =
-                self._jsonToXml.convertToString( self.java_core_rtiPOM.toJSON() );
+              var fullPath = eventsDirPath + '/pom.xml';
+              var xmlCode = self._jsonToXml.convertToString( self.java_core_rtiPOM.toJSON() );
               console.log( 'calling addFile for: ' + fullPath );
               artifact.addFile( fullPath, xmlCode,
                 function( err )
@@ -812,9 +707,7 @@ define
             } );
 
             /***********************************************************************/
-
             /*
-
             If generating export packages, add to the corefileGenerators a function
             that generates an InteractionRoot.java file and an
             InteractionRootInterface.java file.
@@ -822,24 +715,20 @@ define
             When the added function executes, the second artifact.addFile adds the
             InteractionRootInterface.java file only if there is no error generating
             the InteractionRoot.java file.
-
             */
             self.corefileGenerators.push( function( artifact, callback )
             {
-              var fullPath;
-              var xmlCode;
-              var template;
-
               if ( !self.javaPOM )
               {
                 callback();
                 return;
               }
-              fullPath = coreOutFilePath + "/" + corePackagePath.join( "/" ) +
-                "/" + 'InteractionRoot.java';
+              var fullPath = coreOutFilePath + "/" +
+                corePackagePath.join( "/" ) + "/" +
+                'InteractionRoot.java';
               renderContext[ 'isinteraction' ] = true;
-              template = TEMPLATES[ 'java/classroot.java.ejs' ];
-              xmlCode = ejs.render( template, renderContext );
+              var template = TEMPLATES[ 'java/classroot.java.ejs' ];
+              var xmlCode = ejs.render( template, renderContext );
               console.log( 'calling addFile for: ' + fullPath );
               artifact.addFile( fullPath, xmlCode,
                 function( err )
@@ -872,9 +761,7 @@ define
             } );
 
             /***********************************************************************/
-
             /*
-
             If generating export packages, add to the corefileGenerators a
             function that generates an ObjectRoot.java file and an
             ObjectRootInterface.java file.
@@ -882,26 +769,21 @@ define
             When the added function executes, the second artifact.addFile adds the
             ObjectRootInterface.java file only if there is no error generating the
             ObjectRoot.java file.
-
             */
-
             self.corefileGenerators.push( function( artifact, callback )
             {
-              var fullPath;
-              var xmlCode;
-              var template;
-
               if ( !self.javaPOM )
               {
                 callback();
                 return;
               }
-              fullPath = coreOutFilePath + "/" +
+
+              var fullPath = coreOutFilePath + "/" +
                 corePackagePath.join( "/" ) + "/" +
                 'ObjectRoot.java';
               renderContext.isinteraction = false;
-              template = TEMPLATES[ 'java/classroot.java.ejs' ];
-              xmlCode = ejs.render( template, renderContext );
+              var template = TEMPLATES[ 'java/classroot.java.ejs' ];
+              var xmlCode = ejs.render( template, renderContext );
               console.log( 'calling addFile for: ' + fullPath );
               artifact.addFile( fullPath, xmlCode,
                 function( err )
@@ -911,9 +793,12 @@ define
                     callback( err );
                     return;
                   }
-                } );
-              fullPath = coreOutFilePath + "/" + corePackagePath.join( "/" ) +
-                "/" + 'ObjectRootInterface.java';
+                }
+              );
+
+              fullPath = coreOutFilePath + "/" +
+                corePackagePath.join( "/" ) + "/" +
+                'ObjectRootInterface.java';
               template = TEMPLATES[ 'java/interfaceroot.java.ejs' ]
               xmlCode = ejs.render( template, renderContext )
               console.log( 'calling addFile for: ' + fullPath );
@@ -934,9 +819,7 @@ define
             } );
 
             /***********************************************************************/
-
             /*
-
             If generating export packages, add to the core file generators a
             function that prints a java file for each object in self.objects
             whose name is a property in self.javaCorePackageOISpecs.
@@ -944,25 +827,19 @@ define
             When the added function executes, the renderToFile function defined
             above and the renderNextObjectInCore function defined here call each
             other until all the selected objects are processed.
-
             */
-
             self.corefileGenerators.push( function( artifact, callback )
             {
-              var objToRender;
-              var renderNextObjectInCore;
-              var nextObj;
-              var oid;
-
               if ( !self.javaPOM )
               {
                 callback();
                 return;
               }
-              objToRender = [];
+
+              var objToRender = [];
 
               /* start define renderNextObjectInCore function */
-              renderNextObjectInCore = function( err )
+              var renderNextObjectInCore = function( err )
               {
                 if ( err )
                 {
@@ -970,12 +847,17 @@ define
                 }
                 else
                 {
-                  nextObj = objToRender.pop();
+                  var nextObj = objToRender.pop();
                   if ( nextObj )
                   {
                     console.log( "calling renderToFile for core object" );
-                    renderToFile( eventsOutFilePath, false, nextObj,
-                      artifact, renderNextObjectInCore );
+                    renderToFile(
+                      eventsOutFilePath,
+                      false,
+                      nextObj,
+                      artifact,
+                      renderNextObjectInCore
+                    );
                   }
                   else
                   {
@@ -986,7 +868,7 @@ define
               };
               /* end define renderNextObjectInCore function */
 
-              for ( oid in self.objects )
+              for ( var oid in self.objects )
               {
                 if ( self.objects[ oid ].name != "ObjectRoot" &&
                   self.javaCorePackageOISpecs.hasOwnProperty( self.objects[ oid ].name ) )
@@ -998,9 +880,7 @@ define
             } );
 
             /***********************************************************************/
-
             /*
-
             If generating export packages, add to the core file generators a
             function that prints a java file for each interaction in self.interactions
             whose name is a property in self.javaCorePackageOISpecs.
@@ -1008,9 +888,7 @@ define
             When the added function executes, the renderToFile function defined
             above and the renderNextInteractionInCore function defined here call each
             other until all the selected interactions are processed.
-
             */
-
             self.corefileGenerators.push( function( artifact, callback )
             {
               var intToRender;
@@ -1038,9 +916,13 @@ define
                   if ( nextInteraction )
                   {
                     console.log( "calling renderToFile for core interaction" );
-                    renderToFile( eventsOutFilePath, true,
-                      nextInteraction, artifact,
-                      renderNextInteractionInCore );
+                    renderToFile(
+                      eventsOutFilePath,
+                      true,
+                      nextInteraction,
+                      artifact,
+                      renderNextInteractionInCore
+                    );
                   }
                   else
                   {
@@ -1053,8 +935,8 @@ define
 
               for ( iid in self.interactions )
               {
-                if ( self.interactions[ iid ].name != "InteractionRoot" &&
-                  self.javaCorePackageOISpecs.hasOwnProperty( self.interactions[ iid ].name ) )
+                var iidName = self.interactions[ iid ].name;
+                if ( iidName !== "InteractionRoot" && self.javaCorePackageOISpecs.hasOwnProperty( iidName ) )
                 {
                   intToRender.push( self.interactions[ iid ] );
                 }
@@ -1066,9 +948,7 @@ define
           // end FOUNDATION RTI
 
           /***********************************************************************/
-
           // begin SIM RTI
-
           simDirBasePath = self.projectName + '-java-federates/';
           simDirSpec = {
             federation_name: self.projectName,
@@ -1080,20 +960,16 @@ define
           simOutFilePath = simDirPath + MavenPOM.mavenJavaPath;
 
           self.java_rtiPOM = new MavenPOM(); //Parent set at serialization time.
-          self.java_rtiPOM.artifactId =
-            ejs.render( self.directoryNameTemplate, simDirSpec );
+          self.java_rtiPOM.artifactId = ejs.render( self.directoryNameTemplate, simDirSpec );
           self.java_rtiPOM.version = self.project_version;
           self.java_rtiPOM.packaging = "jar";
           self.java_rtiPOM.dependencies.push( self.java_core_rtiPOM );
 
           /***********************************************************************/
-
           /*
-
           this adds to the file generators a function that prints a java file
           for each object in self.objects whose name is not a property in
           self.javaCorePackageOISpecs.
-
           */
           self.fileGenerators.push( function( artifact, callback )
           {
@@ -1121,15 +997,11 @@ define
           } );
 
           /***********************************************************************/
-
           /*
-
           This adds to the file generators a function that prints a java file for
           each interaction in self.interactions whose name is not a property in
           self.javaCorePackageOISpecs.
-
           */
-
           self.fileGenerators.push( function( artifact, callback )
           {
             var intToRender;
@@ -1154,26 +1026,19 @@ define
             callback();
             return;
           } );
-
           // end SIM RTI
-
           /***********************************************************************/
 
           self.javaRTIInitDone = true;
         } // end initJavaRTI
 
         /***********************************************************************/
-
         /* createJavaRTICodeModel
-
         Returned Value: A large object
-
         Called By: renderToFile
-
         The use of "default" as a property name near the end of this function
         may be a problem because "default" is a JavaScript reserved word. However,
         code elsewhere may be looking for "default", so it has been left in.
-
         */
         this.createJavaRTICodeModel = function()
         {
