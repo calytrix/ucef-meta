@@ -4,6 +4,8 @@
     "indent_size": 2,
     "brace_style": "expand",
     "end_with_newline": true,
-    "wrap_line_length": 120
+    "wrap_line_length": 120,
+    "space_in_paren": true,
+    "space_before_paren": false
   }
 }
