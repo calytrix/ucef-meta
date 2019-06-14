@@ -1,0 +1,96 @@
+<% /*federateName, projectName, version, pocOrg, dateString, objectsXml, interactionsXml*/ -%>
+<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<objectModel
+    xsi:schemaLocation="http://standards.ieee.org/IEEE1516-2010
+      http://standards.ieee.org/downloads/1516/1516.2-2010/IEEE1516-DIF-2010.xsd"
+    xmlns="http://standards.ieee.org/IEEE1516-2010"
+    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+    <modelIdentification>
+        <name><%- federateName %></name>
+        <type>FOM</type>
+        <version><%- version %></version>
+        <modificationDate><%- dateString %></modificationDate>
+        <securityClassification>Unclassified</securityClassification>
+        <description>
+            This file was generated from WebGME based on the federate <%- federateName %> in the <%- projectName %> project.
+        </description>
+        <poc>
+            <pocType>Primary author</pocType>
+            <pocOrg><%- pocOrg %></pocOrg>
+        </poc>
+    </modelIdentification>
+<% if (objectsXml[0]) { %>    <objects>
+<% } -%>
+<% objectsXml.forEach(function(object){ %><%- object %><%}); -%>
+<% if (objectsXml[0]) { %>    </objects>
+<% } -%>
+    <interactions>
+<% interactionsXml.forEach(function(interaction){ %><%- interaction %><% }); -%>
+    </interactions>
+
+    <transportations>
+        <transportation>
+            <name>HLAreliable</name>
+            <reliable>Yes</reliable>
+            <semantics>
+                Provide reliable delivery of data in the sense that TCP/IP
+                delivers its data reliably
+            </semantics>
+        </transportation>
+        <transportation>
+            <name>HLAbestEffort</name>
+            <reliable>No</reliable>
+            <semantics>
+                Make an effort to deliver data in the sense that UDP provides
+                best-effort delivery
+            </semantics>
+        </transportation>
+    </transportations>
+
+    <dataTypes>
+        <basicDataRepresentations />
+        <simpleDataTypes>
+            <simpleData>
+                <name>byte</name>
+                <representation>HLAbyte</representation>
+            </simpleData>
+            <simpleData>
+                <name>char</name>
+                <representation>HLAunicodeChar</representation>
+            </simpleData>
+            <simpleData>
+                <name>short</name>
+                <representation>HLAinteger16BE</representation>
+            </simpleData>
+            <simpleData>
+                <name>int</name>
+                <representation>HLAinteger32BE</representation>
+            </simpleData>
+            <simpleData>
+                <name>long</name>
+                <representation>HLAinteger64BE</representation>
+            </simpleData>
+            <simpleData>
+                <name>float</name>
+                <representation>HLAfloat32BE</representation>
+            </simpleData>
+            <simpleData>
+                <name>double</name>
+                <representation>HLAfloat64BE</representation>
+            </simpleData>
+            <simpleData>
+                <name>boolean</name>
+                <representation>HLAboolean</representation>
+            </simpleData>
+            <simpleData>
+                <name>string</name>
+                <representation>HLAunicodeString</representation>
+            </simpleData>
+        </simpleDataTypes>
+        <enumeratedDataTypes/>
+        <arrayDataTypes />
+        <fixedRecordDataTypes/>
+        <variantRecordDataTypes/>
+    </dataTypes>
+
+</objectModel>
