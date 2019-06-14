@@ -1,0 +1,239 @@
+<% /* ////////////////////////////////////////////////////////////////////////////////////// */ -%>
+<% /* This template generates the Java code for the implementation of the federate           */ -%>
+<% /* interaction classes located in the "interactions" package of the generated file set,   */ -%>
+<% /* as indicated by the items marked with '*****' below                                    */ -%>
+<% /*                                                                                        */ -%>
+<% /*     [top]                                                                              */ -%>
+<% /*         base                                                                           */ -%>
+<% /*             _SomeFederate.java                                                         */ -%>
+<% /*         interactions                                                                   */ -%>
+<% /*             SomeInteractionA.java  *****                                               */ -%>
+<% /*             SomeInteractionB.java  *****                                               */ -%>
+<% /*             ...                                                                        */ -%>
+<% /*         reflections                                                                    */ -%>
+<% /*             SomeReflectionA.java                                                       */ -%>
+<% /*             SomeReflectionB.java                                                       */ -%>
+<% /*             ...                                                                        */ -%>
+<% /*         SomeFederate.java                                                              */ -%>
+<% /* ////////////////////////////////////////////////////////////////////////////////////// */ -%>
+/*
+ * This software is contributed as a public service by The National Institute of Standards
+ * and Technology (NIST) and is not subject to U.S. Copyright
+ *
+ * Permission is hereby granted, free of charge, to any person obtaining a copy of this
+ * software and associated documentation files (the "Software"), to deal in the Software
+ * without restriction, including without limitation the rights to use, copy, modify,
+ * merge, publish, distribute, sublicense, and/or sell copies of the Software, and to
+ * permit persons to whom the Software is furnished to do so, subject to the following
+ * conditions:
+ *
+ * The above NIST contribution notice and this permission and disclaimer notice shall be
+ * included in all copies or substantial portions of the Software.
+ *
+ * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED,
+ * INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A
+ * PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT
+ * HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF
+ * CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE
+ * OR THE USE OR OTHER DEALINGS IN THE SOFTWARE. THE AUTHORS OR COPYRIGHT HOLDERS SHALL
+ * NOT HAVE ANY OBLIGATION TO PROVIDE MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR
+ * MODIFICATIONS.
+ */
+
+import java.util.Collections;
+import java.util.HashMap;
+import java.util.Map;
+import java.util.Set;
+
+import gov.nist.ucef.hla.base.HLAInteraction;
+import gov.nist.ucef.hla.base.RTIAmbassadorWrapper;
+import gov.nist.ucef.hla.base.Types.DataType;
+
+public class <%= classname %> extends HLAInteraction
+{
+    //----------------------------------------------------------
+    //                    STATIC VARIABLES
+    //----------------------------------------------------------
+    // HLA identifier of this type of interaction
+    private static final String INTERACTION_NAME = "HLAinteractionRoot.<%= classname %>";
+
+    // interaction parameters and types
+<% datamembers.forEach(function(parameter){ -%>
+<% var paramName = parameter.name.trim() -%>
+<% var allCapsParamName = paramName.toUpperCase() -%>
+<% var allCapsParamType = parameter.parameterType.toUpperCase().trim() -%>
+    private static final String PARAM_KEY_<%= allCapsParamName %> = "<%= paramName %>";
+    private static final DataType PARAM_TYPE_<%= allCapsParamName %> = DataType.<%= parameter.parameterType.toUpperCase() %>;
+<% }); -%>
+
+    // a map for finding a data type for a parameter name - this is to provide
+    // quick lookups and avoid iterating over all parameters
+    private static final Map<String,DataType> PARAMETERS_LOOKUP =
+        Collections.unmodifiableMap( initializeMapping() );
+
+    //----------------------------------------------------------
+    //                   INSTANCE VARIABLES
+    //----------------------------------------------------------
+
+    //----------------------------------------------------------
+    //                      CONSTRUCTORS
+    //----------------------------------------------------------
+    /**
+     * Default constructor
+    */
+    public <%= classname %>()
+    {
+        super( INTERACTION_NAME, null );
+    }
+
+    /**
+    * @param interaction the {@link HLAInteraction} instance
+    */
+    public <%= classname %>( HLAInteraction interaction )
+    {
+        super( interaction );
+    }
+
+    //----------------------------------------------------------
+    //                    INSTANCE METHODS
+    //----------------------------------------------------------
+
+    ////////////////////////////////////////////////////////////////////////////////////////////
+    /////////////////////////////// Accessor and Mutator Methods ///////////////////////////////
+    ////////////////////////////////////////////////////////////////////////////////////////////
+<% datamembers.forEach(function(parameter){ -%>
+<% var paramName = parameter.name.trim() -%>
+<% var allCapsParamName = paramName.toUpperCase() -%>
+<% var initialCapParamName = allCapsParamName.charAt(0)+paramName.substr(1) -%>
+<% var paramType = parameter.parameterType.trim() -%>
+<% var allLowerParamType = paramType.toLowerCase() -%>
+<% var initialCapParamType = paramType.charAt(0).toUpperCase()+paramType.substr(1) -%>
+<% paramType = allLowerParamType === 'string'?initialCapParamType:allLowerParamType -%>
+    /**
+    * Determine whether the '<%= paramName %>' parameter has a value set for it
+    *
+    * @return true if a value has been set, false if the parameter value has
+    *         never been initialised (i.e., is currently invalid/indeterminate)
+    */
+    public boolean is<%= initialCapParamName %>Present()
+    {
+        return isPresent( PARAM_KEY_<%= allCapsParamName %> );
+    }
+
+    /**
+    * Set the value for the '<%= paramName %>' parameter
+    *
+    * @param value the value to set
+    * @return this {@link <%= classname %>} instance for method chaining
+    */
+    public <%= classname %> <%= paramName %>( <%= paramType %> value )
+    {
+        setValue( PARAM_KEY_<%= allCapsParamName %>, value );
+        return this;
+    }
+
+    /**
+    * Obtain the current value for the '<%= paramName %>' parameter.
+    *
+    * <b>NOTE:</b>The {@link #is<%= initialCapParamName %>Present()} method  should be used first
+    * to determine whether the parameter has any value <i>>at all</i>. Trying to obtain the
+    * value from a parameter which has never been initialized with a value
+    * (i.e., is currently invalid/indeterminate) will cause a {@link RuntimeException}.
+    *
+    * See also {@link #<%= paramName %>OrDefault()}, which provides a alternative
+    * "safe" way to obtain the parameter's value.
+    *
+    * @return the current value for the parameter
+    */
+    public <%= paramType %> <%= paramName %>()
+    {
+        return getAs<%= initialCapParamType %>( PARAM_KEY_<%= allCapsParamName %> );
+    }
+
+    /**
+    * Provides a "safe" way to obtain the current value for the '<%= paramName %>' parameter,
+    * using the the given default value in the case that the parameter has not been initialized
+    * with a value.
+    *
+    * @return the current value for the parameter, or the default value if the
+    *         parameter has not yet been initialized.
+    */
+    public <%= paramType %> <%= paramName %>OrDefault( <%= paramType %> defaultValue )
+    {
+        try { return this.<%= paramName %>(); } catch( Exception e) { return defaultValue; }
+    }
+<% }); -%>
+
+    //----------------------------------------------------------
+    //                     STATIC METHODS
+    //----------------------------------------------------------
+    /**
+    * Obtain the HLA interaction name identifying this type of interaction
+    *
+    * @return the HLA interaction name identifying this interaction
+    */
+    public static String interactionClassName()
+    {
+        return INTERACTION_NAME;
+    }
+
+    /**
+    * Determine whether a named parameter is associated with this kind of interaction
+    *
+    * @param parameter the name of the parameter to check for
+    * @return true if the named parameter is associated with this kind of interaction,
+    *         and false otherwise
+    */
+    public static boolean hasParameter( String parameter )
+    {
+        return PARAMETERS_LOOKUP.containsKey( parameter );
+    }
+
+    /**
+    * Obtain the names of the parameters associated with this kind of interaction
+    *
+    * @return a {@link Set<String>} containing the {@link String} names of the parameters
+    */
+    public static Set<String> parameterNames()
+    {
+        return PARAMETERS_LOOKUP.keySet();
+    }
+
+    /**
+    * Obtain the {@link DataType} of a parameter of this kind of interaction
+    *
+    * @param parameter the name of the parameter to obtain the type for
+    * @return a {@link DataType} corresponding to the type of the parameter. If no such
+    *         parameter exists for this interaction, {@link DataType#UNKNOWN} will be
+    *         returned.
+    */
+    public static DataType parameterType( String parameter )
+    {
+        return PARAMETERS_LOOKUP.getOrDefault( parameter, DataType.UNKNOWN );
+    }
+
+    /**
+    * Obtain the parameters associated with this kind of interaction
+    *
+    * @return an (unmodifiable) {@link Map} associating the {@link String} names of the
+    *         parameters and their {@link DataType}s
+    */
+    public static Map<String,DataType> parameters()
+    {
+        return Collections.unmodifiableMap( PARAMETERS_LOOKUP );
+    }
+
+    /**
+    * Private initializer method for the parameter-datatype lookup map
+    *
+    * @return a lookup map which pairs parameter names and the corresponding {@link DataType}s
+    */
+    private static Map<String,DataType> initializeMapping()
+    {
+        Map<String,DataType> lookupMap = new HashMap<String,DataType>();
+<% datamembers.forEach(function(parameter){ -%>
+        lookupMap.put( PARAM_KEY_<%= parameter.name.toUpperCase() %>, PARAM_TYPE_<%= parameter.name.toUpperCase() %> );
+<% }); -%>
+        return lookupMap;
+    }
+}

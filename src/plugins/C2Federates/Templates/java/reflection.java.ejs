@@ -1,0 +1,239 @@
+<% /* ////////////////////////////////////////////////////////////////////////////////////// */ -%>
+<% /* This template generates the Java code for the implementation of the federate           */ -%>
+<% /* reflection classes located in the "reflections" package of the generated file set,     */ -%>
+<% /* as indicated by the items marked with '*****' below                                    */ -%>
+<% /*                                                                                        */ -%>
+<% /*     [top]                                                                              */ -%>
+<% /*         base                                                                           */ -%>
+<% /*             _SomeFederate.java                                                         */ -%>
+<% /*         reflections                                                                    */ -%>
+<% /*             SomeInteractionA.java                                                      */ -%>
+<% /*             SomeInteractionB.java                                                      */ -%>
+<% /*             ...                                                                        */ -%>
+<% /*         reflections                                                                    */ -%>
+<% /*             SomeReflectionA.java   *****                                               */ -%>
+<% /*             SomeReflectionB.java   *****                                               */ -%>
+<% /*             ...                                                                        */ -%>
+<% /*         SomeFederate.java                                                              */ -%>
+<% /* ////////////////////////////////////////////////////////////////////////////////////// */ -%>
+/*
+ * This software is contributed as a public service by The National Institute of Standards
+ * and Technology (NIST) and is not subject to U.S. Copyright
+ *
+ * Permission is hereby granted, free of charge, to any person obtaining a copy of this
+ * software and associated documentation files (the "Software"), to deal in the Software
+ * without restriction, including without limitation the rights to use, copy, modify,
+ * merge, publish, distribute, sublicense, and/or sell copies of the Software, and to
+ * permit persons to whom the Software is furnished to do so, subject to the following
+ * conditions:
+ *
+ * The above NIST contribution notice and this permission and disclaimer notice shall be
+ * included in all copies or substantial portions of the Software.
+ *
+ * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED,
+ * INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A
+ * PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT
+ * HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF
+ * CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE
+ * OR THE USE OR OTHER DEALINGS IN THE SOFTWARE. THE AUTHORS OR COPYRIGHT HOLDERS SHALL
+ * NOT HAVE ANY OBLIGATION TO PROVIDE MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR
+ * MODIFICATIONS.
+ */
+
+import java.util.Collections;
+import java.util.HashMap;
+import java.util.Map;
+import java.util.Set;
+
+import gov.nist.ucef.hla.base.HLAObject;
+import gov.nist.ucef.hla.base.RTIAmbassadorWrapper;
+import gov.nist.ucef.hla.base.Types.DataType;
+
+public class <%= classname %> extends HLAObject
+{
+    //----------------------------------------------------------
+    //                    STATIC VARIABLES
+    //----------------------------------------------------------
+    // HLA identifier of this type of reflection
+    private static final String OBJECT_CLASS_NAME = "HLAobjectRoot.<%= classname %>";
+
+    // reflection attribute and types
+<% datamembers.forEach(function(attribute){ -%>
+<% var attrName = attribute.name.trim() -%>
+<% var allCapsAttrName = attrName.toUpperCase() -%>
+<% var allCapsParamType = attribute.parameterType.toUpperCase().trim() -%>
+    private static final String ATTRIBUTE_KEY_<%= allCapsAttrName %> = "<%= attrName %>";
+    private static final DataType ATTRIBUTE_TYPE_<%= allCapsAttrName %> = DataType.<%= attribute.parameterType.toUpperCase() %>;
+<% }); -%>
+
+    // a map for finding a data type for an attribute name - this is to provide
+    // quick lookups and avoid iterating over all attributes
+    private static final Map<String,DataType> ATTRIBUTES_LOOKUP =
+        Collections.unmodifiableMap( initializeMapping() );
+
+    //----------------------------------------------------------
+    //                   INSTANCE VARIABLES
+    //----------------------------------------------------------
+
+    //----------------------------------------------------------
+    //                      CONSTRUCTORS
+    //----------------------------------------------------------
+    /**
+     * Default constructor
+    */
+    public <%= classname %>()
+    {
+        super( OBJECT_CLASS_NAME, null );
+    }
+
+    /**
+    * @param reflection the {@link HLAObject} instance
+    */
+    public <%= classname %>( HLAObject reflection )
+    {
+        super( reflection );
+    }
+
+    //----------------------------------------------------------
+    //                    INSTANCE METHODS
+    //----------------------------------------------------------
+
+    ////////////////////////////////////////////////////////////////////////////////////////////
+    /////////////////////////////// Accessor and Mutator Methods ///////////////////////////////
+    ////////////////////////////////////////////////////////////////////////////////////////////
+<% datamembers.forEach(function(attribute){ -%>
+<% var attrName = attribute.name.trim() -%>
+<% var allCapsAttrName = attrName.toUpperCase() -%>
+<% var initialCapAttrName = allCapsAttrName.charAt(0)+attrName.substr(1) -%>
+<% var paramType = attribute.parameterType.trim() -%>
+<% var allLowerParamType = paramType.toLowerCase() -%>
+<% var initialCapParamType = paramType.charAt(0).toUpperCase()+paramType.substr(1) -%>
+<% paramType = allLowerParamType === 'string'?initialCapParamType:allLowerParamType -%>
+    /**
+    * Determine whether the '<%= attrName %>' attribute has a value set for it
+    *
+    * @return true if a value has been set, false if the attribute value has
+    *         never been initialised (i.e., is currently invalid/indeterminate)
+    */
+    public boolean is<%= initialCapAttrName %>Present()
+    {
+        return isPresent( ATTRIBUTE_KEY_<%= allCapsAttrName %> );
+    }
+
+    /**
+    * Set the value for the '<%= attrName %>' attribute
+    *
+    * @param value the value to set
+    * @return this {@link <%= classname %>} instance for method chaining
+    */
+    public <%= classname %> <%= attrName %>( <%= paramType %> value )
+    {
+        setValue( ATTRIBUTE_KEY_<%= allCapsAttrName %>, value );
+        return this;
+    }
+
+    /**
+    * Obtain the current value for the '<%= attrName %>' attribute.
+    *
+    * <b>NOTE:</b>The {@link #is<%= initialCapAttrName %>Present()} method  should be used first
+    * to determine whether the attribute has any value <i>>at all</i>. Trying to obtain the
+    * value from a attribute which has never been initialized with a value
+    * (i.e., is currently invalid/indeterminate) will cause a {@link RuntimeException}.
+    *
+    * See also {@link #<%= attrName %>OrDefault()}, which provides a alternative
+    * "safe" way to obtain the attribute's value.
+    *
+    * @return the current value for the attribute
+    */
+    public <%= paramType %> <%= attrName %>()
+    {
+        return getAs<%= initialCapParamType %>( ATTRIBUTE_KEY_<%= allCapsAttrName %> );
+    }
+
+    /**
+    * Provides a "safe" way to obtain the current value for the '<%= attrName %>' attribute,
+    * using the the given default value in the case that the attribute has not been initialized
+    * with a value.
+    *
+    * @return the current value for the attribute, or the default value if the
+    *         attribute has not yet been initialized.
+    */
+    public <%= paramType %> <%= attrName %>OrDefault( <%= paramType %> defaultValue )
+    {
+        try { return this.<%= attrName %>(); } catch( Exception e) { return defaultValue; }
+    }
+<% }); -%>
+
+    //----------------------------------------------------------
+    //                     STATIC METHODS
+    //----------------------------------------------------------
+    /**
+    * Obtain the HLA object name identifying this type of object
+    *
+    * @return the HLA object name identifying this object
+    */
+    public static String reflectionClassName()
+    {
+        return OBJECT_CLASS_NAME;
+    }
+
+    /**
+    * Determine whether a named attribute is associated with this kind of object
+    *
+    * @param attribute the name of the attribute to check for
+    * @return true if the named attribute is associated with this kind of object,
+    *         and false otherwise
+    */
+    public static boolean hasAttribute( String attribute )
+    {
+        return ATTRIBUTES_LOOKUP.containsKey( attribute );
+    }
+
+    /**
+    * Obtain the names of the attributes associated with this kind of object
+    *
+    * @return a {@link Set<String>} containing the {@link String} names of the attributes
+    */
+    public static Set<String> attributeNames()
+    {
+        return ATTRIBUTES_LOOKUP.keySet();
+    }
+
+    /**
+    * Obtain the {@link DataType} of a attribute of this kind of object
+    *
+    * @param attribute the name of the attribute to obtain the type for
+    * @return a {@link DataType} corresponding to the type of the attribute. If no such
+    *         attribute exists for this object, {@link DataType#UNKNOWN} will be
+    *         returned.
+    */
+    public static DataType attributeType( String attribute )
+    {
+        return ATTRIBUTES_LOOKUP.getOrDefault( attribute, DataType.UNKNOWN );
+    }
+
+    /**
+    * Obtain the attributes associated with this kind of object
+    *
+    * @return an (unmodifiable) {@link Map} associating the {@link String} names of the
+    *         attributes and their {@link DataType}s
+    */
+    public static Map<String,DataType> attributes()
+    {
+        return Collections.unmodifiableMap( ATTRIBUTES_LOOKUP );
+    }
+
+    /**
+    * Private initializer method for the attribute-datatype lookup map
+    *
+    * @return a lookup map which pairs attribute names and the corresponding {@link DataType}s
+    */
+    private static Map<String,DataType> initializeMapping()
+    {
+        Map<String,DataType> lookupMap = new HashMap<String,DataType>();
+<% datamembers.forEach(function(attribute){ -%>
+        lookupMap.put( ATTRIBUTE_KEY_<%= attribute.name.toUpperCase() %>, ATTRIBUTE_TYPE_<%= attribute.name.toUpperCase() %> );
+<% }); -%>
+        return lookupMap;
+    }
+}

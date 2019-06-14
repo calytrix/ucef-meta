@@ -262,7 +262,8 @@ define
             var packagePath = outFilePath + "/" +
                 ( self.javaCorePackageOISpecs.hasOwnProperty( model.name ) ? self.javaCorePackageOISpecs[ model.name ][ 'simname' ] : self.projectName );
 
-            var fullPath = packagePath + '/' + model.name + '.java';
+            var fullPath = packagePath + '/' +
+                model.name + '.java';
 
             // Override with core specs
             if ( self.javaCorePackageOISpecs.hasOwnProperty( model.name ) )
@@ -341,13 +342,18 @@ define
                     ( model.id in feder.pubSubObjects ) ) )
                 {
                   remaining--;
+
                   federJavaCode = "package " + groupId + "." +
                     feder.name.toLowerCase() + ".rti;\n" + javaCode;
+
+                  var groupPath = groupId.replace( /[.]/g, "/" );
                   fullPath = self.projectName + "-java-federates/" +
                     feder.name + "/src/main/java/" +
-                    groupId.replace( /[.]/g, "/" ) + "/" +
-                    feder.name.toLowerCase() + "/rti/" + model.name +
-                    ".java";
+                    groupPath + "/" +
+                    feder.name.toLowerCase() +
+                    (isInteraction?"/interactions/":"/reflections/") + // /rti/" +
+                    model.name + ".java";
+
                   console.log( 'calling addFile for: ' + fullPath );
                   artifact.addFile( fullPath, federJavaCode,
                     ( remaining ?
@@ -410,9 +416,11 @@ define
                 self.javaCorePackageOISpecs[ model.name ][ 'simname' ] :
                 self.projectName );
             fullPath = packagePath + '/' + model.name + '.java';
+            var groupId = self.getCurrentConfig().groupId.trim();
             context.isinteraction = false;
             context.simname = self.projectName;
             context.classname = model.name;
+            context.groupId = groupId;
             context.hlaclassname = model.fullName;
             context.parentclassname = model.isroot ? "" : model.basename;
             context.isc2winteractionroot = false;
@@ -438,7 +446,8 @@ define
               }
             } );
 
-            template = TEMPLATES[ 'java/class.java.ejs' ];
+            template = TEMPLATES[ 'java/reflection.java.ejs' ];
+            // template = TEMPLATES[ 'java/class.java.ejs' ];
             javaCode = ejs.render( template, context );
             if ( self.federateInfos )
             { // only the FederatesExporter has federateInfos
@@ -466,12 +475,16 @@ define
                 if ( model.id in feder.pubSubObjects )
                 {
                   federJavaCode = "package " + groupId + "." +
-                    feder.name.toLowerCase() + ".rti;\n" + javaCode;
-                  fullPath = self.projectName + "-java-federates/" +
+                    feder.name.toLowerCase() + ".reflections;\n" + javaCode;
+
+                    var groupPath = groupId.replace( /[.]/g, "/" );
+                    fullPath = self.projectName + "-java-federates/" +
                     feder.name + "/src/main/java/" +
-                    groupId.replace( /[.]/g, "/" ) + "/" +
-                    feder.name.toLowerCase() + "/rti/" + model.name +
-                    ".java";
+                    groupPath + "/" +
+                    feder.name.toLowerCase() +
+                    "/reflections/" + // /rti/" +
+                    model.name + ".java";
+
                   console.log( 'calling addFile for: ' + fullPath );
                   artifact.addFile( fullPath, federJavaCode,
                     function( err )
@@ -519,8 +532,10 @@ define
                 self.javaCorePackageOISpecs[ model.name ][ 'simname' ] :
                 self.projectName );
             fullPath = packagePath + '/' + model.name + '.java';
+            var groupId = self.getCurrentConfig().groupId.trim();
             context.isinteraction = true;
             context.simname = self.projectName;
+            context.groupId = groupId;
             context.classname = model.name;
             context.hlaclassname = model.fullName;
             context.parentclassname = model.isroot ? "" : model.basename;
@@ -547,7 +562,8 @@ define
               }
             } );
 
-            template = TEMPLATES[ 'java/class.java.ejs' ];
+            template = TEMPLATES[ 'java/interaction.java.ejs' ];
+            // template = TEMPLATES[ 'java/class.java.ejs' ];
             javaCode = ejs.render( template, context );
             if ( self.federateInfos )
             { // only the FederatesExporter has federateInfos
@@ -555,7 +571,6 @@ define
               var federId;
               var feder;
               var federJavaCode;
-              var groupId;
 
               if ( self.callInteractionTraverser )
               {
@@ -568,20 +583,24 @@ define
                     interactionTraverserCheck( feder, intRoot );
                   } );
                 }
+
               }
-              groupId = self.getCurrentConfig().groupId.trim();
+              var groupPath = groupId.replace( /[.]/g, "/" );
               for ( federId in self.federateInfos )
               {
                 feder = self.federateInfos[ federId ];
                 if ( model.id in feder.pubSubInteractions )
                 {
                   federJavaCode = "package " + groupId + "." +
-                    feder.name.toLowerCase() + ".rti;\n" + javaCode;
-                  fullPath = self.projectName + "-java-federates/" +
+                    feder.name.toLowerCase() + ".interactions;\n" + javaCode;
+
+                    fullPath = self.projectName + "-java-federates/" +
                     feder.name + "/src/main/java/" +
-                    groupId.replace( /[.]/g, "/" ) + "/" +
-                    feder.name.toLowerCase() + "/rti/" + model.name +
-                    ".java";
+                    groupPath + "/" +
+                    feder.name.toLowerCase() +
+                    "/interactions/" + // /rti/" +
+                    model.name + ".java";
+
                   console.log( 'calling addFile for: ' + fullPath );
                   artifact.addFile( fullPath, federJavaCode,
                     function( err )
@@ -738,7 +757,9 @@ define
                     callback( err );
                     return;
                   }
-                } );
+                }
+              );
+
               fullPath = coreOutFilePath + "/" + corePackagePath.join( "/" ) +
                 "/" + 'InteractionRootInterface.java';
               template = TEMPLATES[ 'java/interfaceroot.java.ejs' ];
