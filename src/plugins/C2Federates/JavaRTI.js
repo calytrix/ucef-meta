@@ -147,7 +147,7 @@ define
         {
           interactionTraverserCheck( federate, child );
         } );
-        if ( interaction.name != 'InteractionRoot' )
+        if ( interaction.name !== 'InteractionRoot' )
         {
           if ( ( interaction.id in federate.pubSubInteractions ) &&
             !( interaction.basePath in federate.pubSubInteractions ) )
@@ -1005,7 +1005,7 @@ define
             for ( objId in self.objects )
             {
               objToRender = self.objects[ objId ];
-              if ( objToRender.name != "ObjectRoot" &&
+              if ( objToRender.name !== "ObjectRoot" &&
                 !self.javaCorePackageOISpecs.hasOwnProperty( objToRender.name ) )
               {
                 console.log( "calling renderNotCoreObjectToFile" );
@@ -1036,8 +1036,7 @@ define
             for ( intId in self.interactions )
             {
               intToRender = self.interactions[ intId ];
-              if ( intToRender.name != "InteractionRoot" &&
-                !self.javaCorePackageOISpecs.hasOwnProperty( intToRender.name ) )
+              if ( intToRender.name !== "InteractionRoot" && !self.javaCorePackageOISpecs.hasOwnProperty( intToRender.name ) )
               {
                 console.log( "calling renderNotCoreInteractionToFile" );
                 renderNotCoreInteractionToFile( simOutFilePath, intToRender,

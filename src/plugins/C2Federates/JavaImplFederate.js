@@ -110,7 +110,7 @@ define
           context.javaimplfedspec.porticoPOM.scope = self.porticoPOM.scope;
           context.javaimplfedspec.classname = nameAttribute;
           context.javaimplfedspec.simname = self.projectName;
-          context.javaimplfedspec.configFile = nameAttribute + 'Config.json';
+          context.javaimplfedspec.configFile = 'config.json';
           context.javaimplfedspec.timeconstrained = timeConstrained;
           context.javaimplfedspec.timeregulating = timeRegulating;
           context.javaimplfedspec.lookahead = lookahead;
@@ -157,7 +157,7 @@ define
           var feder = self.federateInfos[ self.core.getPath( node ) ];
           if ( feder )
           {
-            feder.directory = fedPathDir + "/conf/";
+            feder.directory = fedPathDir + "/src/main/resources/";
           }
 
           var renderContext = context.javaimplfedspec;
@@ -174,7 +174,7 @@ define
             var xmlCode;
             var fullPath;
 
-            template = TEMPLATES[ 'java/federateimpl_uberpom.xml.ejs' ];
+            template = TEMPLATES[ 'java/federateimpl_pom.xml.ejs' ];
             xmlCode = ejs.render( template, renderContext );
             fullPath = fedPathDir + "/" + 'pom.xml';
             console.log( 'calling addFile for: ' + fullPath );
@@ -241,7 +241,7 @@ define
             var fullPath;
             var template;
 
-            fullPath = fedPathDir + '/RTI.rid';
+            fullPath = fedPathDir + '/src/main/resources/RTI.rid';
             template = TEMPLATES[ 'java/rti.rid.ejs' ];
             rtiCode = ejs.render( template, renderContext );
             console.log( 'calling addFile for: ' + fullPath );
@@ -260,7 +260,7 @@ define
             var fullPath;
             var template;
 
-            fullPath = fedPathDir + '/conf/' + renderContext.configFile;
+            fullPath = fedPathDir + '/src/main/resources/' + renderContext.configFile;
             template = TEMPLATES[ 'java/federate-config.json.ejs' ];
             jsonCode = ejs.render( template, renderContext );
             console.log( 'calling addFile for: ' + fullPath );
@@ -279,7 +279,7 @@ define
             var fullPath;
             var template;
 
-            fullPath = fedPathDir + '/conf/log4j2.xml';
+            fullPath = fedPathDir + '/src/main/resources/log4j2.xml';
             template = TEMPLATES[ 'java/log4j2.xml.ejs' ]
             xmlCode = ejs.render( template, self );
             console.log( 'calling addFile for: ' + fullPath );

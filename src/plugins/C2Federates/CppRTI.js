@@ -82,8 +82,8 @@ define([
 
             //
             // FOUNDATION RTI - Begin
-            // 
-            
+            //
+
             var foundationDirBasePath = 'cpp/',
                 coreDirSpec = {federation_name: "rti-base", artifact_name: "", language:""},
                 coreDirPath = foundationDirBasePath + ejs.render(self.directoryNameTemplate, coreDirSpec),
@@ -146,8 +146,8 @@ define([
                         }
                     });
                 });
-                
-                
+
+
                 self.corefileGenerators.push(function(artifact, callback){
                     var fullPath = coreOutSrcFilePath + '/ObjectRoot.cpp';
                     renderContext['isinteraction'] = false;
@@ -177,7 +177,7 @@ define([
                         }else{
                             var nextObj = objToRender.pop();
                             if(nextObj){
-                                renderToFile(coreDirPath, false, nextObj, artifact, renderNextObject);                                    
+                                renderToFile(coreDirPath, false, nextObj, artifact, renderNextObject);
                             }else{
                                 callback();
                                 return;
@@ -201,7 +201,7 @@ define([
                         }else{
                             var nextInteraction = intToRender.pop();
                             if(nextInteraction){
-                                renderToFile(coreDirPath, true, nextInteraction, artifact, renderNextInteraction);                                    
+                                renderToFile(coreDirPath, true, nextInteraction, artifact, renderNextInteraction);
                             }else{
                                 callback();
                                 return;
@@ -210,7 +210,7 @@ define([
                     };
 
                     for(var iid in self.interactions){
-                        if(self.interactions[iid].name != "InteractionRoot" && self.cppCorePackageOISpecs.hasOwnProperty(self.interactions[iid].name) ){
+                        if(self.interactions[iid].name !== "InteractionRoot" && self.cppCorePackageOISpecs.hasOwnProperty(self.interactions[iid].name) ){
                             intToRender.push(self.interactions[iid]);
                         }
                     }
@@ -219,15 +219,15 @@ define([
             }
             //
             // FOUNDATION RTI - End
-            // 
+            //
 
             //
             // SIM RTI - Begin
-            // 
+            //
 
             var simDirBasePath = self.projectName + '-cpp-federates/',
                 simDirSpec = {federation_name: self.projectName, artifact_name: "rti", language:"cpp"},
-                simDirPath =  simDirBasePath + ejs.render(self.directoryNameTemplate, simDirSpec);  
+                simDirPath =  simDirBasePath + ejs.render(self.directoryNameTemplate, simDirSpec);
 
             self.cpp_rtiPOM = new MavenPOM(); //Parent to be set serialization time.
             self.cpp_rtiPOM.artifactId = ejs.render(self.directoryNameTemplate, simDirSpec)
@@ -244,7 +244,7 @@ define([
 
                 //Set the parent now that it exists
                 self.cpp_rtiPOM.setParentPom(self.cppPOM);
-               
+
                 artifact.addFile(simDirPath + '/pom.xml', self._jsonToXml.convertToString( self.cpp_rtiPOM.toJSON() ), function (err) {
                     if (err) {
                         callback(err);
@@ -267,7 +267,7 @@ define([
                     }else{
                         var nextObj = objToRender.pop();
                         if(nextObj){
-                            renderToFile(simDirPath, false, nextObj, artifact, renderNextObject);                                    
+                            renderToFile(simDirPath, false, nextObj, artifact, renderNextObject);
                         }else{
                             callback();
                             return;
@@ -276,7 +276,7 @@ define([
                 };
 
                 for(var oid in self.objects){
-                    if(self.objects[oid].name != "ObjectRoot" && !self.cppCorePackageOISpecs.hasOwnProperty(self.objects[oid].name) ){
+                    if(self.objects[oid].name !== "ObjectRoot" && !self.cppCorePackageOISpecs.hasOwnProperty(self.objects[oid].name) ){
                         objToRender.push(self.objects[oid]);
                     }
                 }
@@ -296,7 +296,7 @@ define([
                     }else{
                         var nextInteraction = intToRender.pop();
                         if(nextInteraction){
-                            renderToFile(simDirPath, true, nextInteraction, artifact, renderNextInteraction);                                    
+                            renderToFile(simDirPath, true, nextInteraction, artifact, renderNextInteraction);
                         }else{
                             callback();
                             return;
@@ -305,7 +305,7 @@ define([
                 };
 
                 for(var iid in self.interactions){
-                    if(self.interactions[iid].name != "InteractionRoot" && !self.cppCorePackageOISpecs.hasOwnProperty(self.interactions[iid].name) ){
+                    if(self.interactions[iid].name !== "InteractionRoot" && !self.cppCorePackageOISpecs.hasOwnProperty(self.interactions[iid].name) ){
                         intToRender.push(self.interactions[iid]);
                     }
                 }
@@ -314,7 +314,7 @@ define([
 
             //
             // SIM RTI - End
-            // 
+            //
 
             self.cppRTIInitDone = true;
         }
@@ -329,7 +329,7 @@ define([
                 isc2winteractionroot: false,
                 datamembers: [],
                 alldatamembers: [],
-                
+
                 helpers:{
                     cppjavaTypeMap: function(type){
                         var typeMap = {
@@ -359,7 +359,7 @@ define([
                         return typeMap[type] || "";
                     }
                 },
-                ejs:ejs, 
+                ejs:ejs,
                 TEMPLATES:TEMPLATES
             };
         }

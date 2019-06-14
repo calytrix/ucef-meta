@@ -1,8 +1,12 @@
 {
-  "federateRTIInitWaitTimeMs": 200,
+  "federateName": "<%=classname%>",
   "federateType": "<%=classname%>",
-  "federationId": "<%=projectName%>",
-  "isLateJoiner": false,
+  "federationExecName": "<%=projectName%>",
+
   "lookAhead": <%=lookahead%>,
-  "stepSize": <%=step%>
+  "stepSize": <%=step%>,
+
+  "base-foms":             ["fom-base.xml"],
+  "join-foms":             ["fom-join.xml"],
+  "som":                   "som.xml",
 }

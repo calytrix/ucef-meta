@@ -32,9 +32,11 @@ C2WLogger* <%=isinteraction?"Interaction":"Object"%>Root::_logger = &C2W_RTI_LOG
 <%- ejs.render(TEMPLATES["cpp/classcommon.cpp.ejs"],
 	{	isinteraction: isinteraction,
 		classname: isinteraction?"InteractionRoot":"ObjectRoot",
-		parentclassname: "",
-		hlaclassname: isinteraction?"InteractionRoot":"ObjectRoot",
-		datamembers: [],
+        parentclassname: "",
+        // HLA1516e requires "HLAinteractionRoot"/"HLAobjectRoot" at root level
+        // of interactions and object attribute reflections in FOM/SOM XML
+        hlaclassname: isinteraction?"HLAinteractionRoot":"HLAobjectRoot",
+        datamembers: [],
 		alldatamembers: []
 }) %>
 
@@ -76,18 +78,18 @@ void <%=isinteraction?"Interaction":"Object"%>Root::subscribe( const std::string
 }
 
 <%}%>
-	
+
 <%=isinteraction?"Interaction":"Object"%>Root::SP <%=isinteraction?"Interaction":"Object"%>Root::create_<%=isinteraction?"interaction":"object"%>( int classHandle, const RTI::<%=isinteraction?"Parameter":"Attribute"%>HandleValuePairSet &datamemberMap ) {
 	IntegerStringMap::iterator ismItr = getClassHandleNameMap().find( classHandle );
 	if ( ismItr == getClassHandleNameMap().end() ) {
 		return SP( (<%=isinteraction?"Interaction":"Object"%>Root *)0 );
 	}
-	
+
 	ClassNameFactoryMap::iterator cfmItr = getClassNameFactoryMap().find( ismItr->second );
 	if ( cfmItr == getClassNameFactoryMap().end() ) {
 		return SP( (<%=isinteraction?"Interaction":"Object"%>Root *)0 );
 	}
-	
+
 	SP sp = (*cfmItr->second)();
 	sp->set<%=isinteraction?"Parameter":"Attribute"%>s( datamemberMap );
 
@@ -99,12 +101,12 @@ void <%=isinteraction?"Interaction":"Object"%>Root::subscribe( const std::string
 	if ( ismItr == getClassHandleNameMap().end() ) {
 		return SP( (<%=isinteraction?"Interaction":"Object"%>Root *)0 );
 	}
-	
+
 	ClassNameFactoryMap::iterator cfmItr = getClassNameFactoryMap().find( ismItr->second );
 	if ( cfmItr == getClassNameFactoryMap().end() ) {
 		return SP( (<%=isinteraction?"Interaction":"Object"%>Root *)0 );
 	}
-	
+
 	SP sp = (*cfmItr->second)();
 	sp->set<%=isinteraction?"Parameter":"Attribute"%>s( datamemberMap );
 	sp->setTime( dlc13FedTime.getTime() );
@@ -117,18 +119,18 @@ void <%=isinteraction?"Interaction":"Object"%>Root::subscribe( const std::string
 void <%=isinteraction?"Interaction":"Object"%>Root::requestUpdate( RTI::RTIambassador *rti ) {
 	bool requestNotSubmitted = true;
 	while( requestNotSubmitted ) {
-		try {		
+		try {
 			rti->requestObjectAttributeValueUpdate( getObjectHandle(), getSubscribedAttributeHandleSet_var() );
 			requestNotSubmitted = false;
 		} catch ( RTI::FederateNotExecutionMember & ) {
 			std::cerr << "ERROR: " << getClassName() << "request for update failed:  Federate Not Execution Member" << std::endl;
-			return;				
+			return;
 		} catch ( RTI::ObjectNotKnown & ) {
 			std::cerr << "ERROR: " << getClassName() << "request for update failed:  Object Not Known" << std::endl;
-			return;				
+			return;
 		} catch ( RTI::AttributeNotDefined & ) {
 			std::cerr << "ERROR: " << getClassName() << "request for update failed:  Name Not Found" << std::endl;
-			return;				
+			return;
 		} catch ( ... ) {
 			std::cerr << "ERROR: " << getClassName() << "request for update failed:  Unknown Exception" << std::endl;			}
 	}
@@ -269,13 +271,13 @@ void <%=isinteraction?"Interaction":"Object"%>Root::createLog( double time, bool
 			interactionId += "_" + fedName;
 		}
 	}
-	
+
 	_logger->addLog( interactionId, *this, time, pubLogLevel );
 }
 
 <%}else{%>
 void ObjectRoot::registerObject( RTI::RTIambassador *rti ) {
-    
+
     while( !_isRegistered ) {
         try {
             _object_handle = rti->registerObjectInstance( getClassHandle() );
@@ -297,7 +299,7 @@ void ObjectRoot::registerObject( RTI::RTIambassador *rti ) {
 }
 
 void ObjectRoot::unregisterObject( RTI::RTIambassador *rti ) {
-    
+
     while( _isRegistered ) {
         try {
             rti->deleteObjectInstance( getObjectHandle(), 0 );

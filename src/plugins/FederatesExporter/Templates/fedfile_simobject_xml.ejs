@@ -1,13 +1,22 @@
 <% /* simobject(name, sharingXml, indent, attributes, children) */ -%>
+<% var DATA_TYPE_MAP={'byte':'HLAbyte', 'char':'HLAunicodeChar', 'short':'HLAinteger16BE', 'int':'HLAinteger32BE', 'long':'HLAinteger64BE', 'float':'HLAfloat32BE', 'double':'HLAfloat64BE', 'boolean':'HLAboolean', 'string':'HLAunicodeString'} %>
+<% var getHLAType=function(t){return DATA_TYPE_MAP[t.trim().toLowerCase()]||'!!!UNKNOWN_TYPE!!!'} %>
 <%= indent%>    <objectClass>
-<%= indent%>        <name><%= name %></name>
+<% /* ------------------------------------------------------------------------------------------ */ -%>
+<% /* I wish there were a better way of doing this next line - HLA1516e *requires* that the root */ -%>
+<% /* object node be called "HLAobjectRoot", and will cause exceptions to be thrown if           */ -%>
+<% /* this is not the case. I can't find where 'ObjectRoot' is coming from outside of this       */ -%>
+<% /* template to correct the value before we start rendering the template, so for now the       */ -%>
+<% /* substitution is being done here, which is not what I would call a "great" solution.        */ -%>
+<%= indent%>        <name><%= (name==='ObjectRoot'?'HLAobjectRoot':name) %></name>
+<% /* ------------------------------------------------------------------------------------------ */ -%>
 <%= indent%>        <sharing><%= sharingXml %></sharing><% -%>
 <% attributes.forEach(function(attr){ -%>
 <%   if (!attr.inherited || (attr.printFor == name)) { %>
 <%   if (attr.printFor == name) attr.printFor = 0; -%>
 <%= indent%>        <attribute>
 <%= indent%>            <name><%= attr.name %></name>
-<%= indent%>            <dataType><%= attr.parameterType %></dataType>
+<%= indent%>            <dataType><%= getHLAType(attr.parameterType) %></dataType>
 <%= indent%>            <updateType>NA</updateType>
 <%= indent%>            <ownership>NoTransfer</ownership>
 <%= indent%>            <sharing><%= attr.sharingXml %></sharing>

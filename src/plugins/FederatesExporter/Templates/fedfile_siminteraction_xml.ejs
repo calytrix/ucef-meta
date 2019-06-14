@@ -1,14 +1,23 @@
 <% /* name,sharingXml,deliveryXml,orderXml,indent,parameters,children */ -%>
+<% var DATA_TYPE_MAP={'byte':'HLAbyte', 'char':'HLAunicodeChar', 'short':'HLAinteger16BE', 'int':'HLAinteger32BE', 'long':'HLAinteger64BE', 'float':'HLAfloat32BE', 'double':'HLAfloat64BE', 'boolean':'HLAboolean', 'string':'HLAunicodeString'} %>
+<% var getHLAType=function(t){return DATA_TYPE_MAP[t.trim().toLowerCase()]||'!!!UNKNOWN_TYPE!!!'} %>
 <%= indent%>    <interactionClass>
-<%= indent%>        <name><%= name %></name>
+<% /* ------------------------------------------------------------------------------------------ */ -%>
+<% /* I wish there were a better way of doing this next line - HLA1516e *requires* that the root */ -%>
+<% /* interaction node be called "HLAinteractionRoot", and will cause exceptions to be thrown if */ -%>
+<% /* this is not the case. I can't find where 'InteractionRoot' is coming from outside of this  */ -%>
+<% /* template to correct the value before we start rendering the template, so for now the       */ -%>
+<% /* substitution is being done here, which is not what I would call a "great" solution.        */ -%>
+<%= indent%>        <name><%= (name==='InteractionRoot'?'HLAinteractionRoot':name) %></name>
+<% /* ------------------------------------------------------------------------------------------ */ -%>
 <%= indent%>        <sharing><%= sharingXml %></sharing>
 <%= indent%>        <transportation><%= deliveryXml %></transportation>
 <%= indent%>        <order><%= orderXml %></order><% -%>
 <% parameters.forEach(function(param){ -%>
 <%   if (!param.inherited) { %>
-<%= indent%>        <parameter> 
+<%= indent%>        <parameter>
 <%= indent%>            <name><%= param.name %></name>
-<%= indent%>            <dataType><%= param.parameterType %></dataType>
+<%= indent%>            <dataType><%= getHLAType(param.parameterType) %></dataType>
 <%= indent%>        </parameter><% }}); %>
 <% children.forEach(function(child){ %><%- child %><% }); -%>
 <%= indent%>    </interactionClass>

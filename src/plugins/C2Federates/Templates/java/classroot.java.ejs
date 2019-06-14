@@ -58,7 +58,7 @@ import org.portico.impl.hla13.types.DoubleTime;
  * {@link #create_<%=isinteraction?"interaction":"object"%>( String className )}.
  * - methods for sending <% if(isinteraction){ %>an interaction<%}else{%>object updates<%}%> to the RTI (see
  * {@link <% if(isinteraction){ %>#sendInteraction( RTIambassador rti )<%}else{%>#updateAttributeValues( RTIambassador rti )<%}%>} for an example).
- * - methods for publishing/subscribing to any <% if(isinteraction){ %>interaction<%}else{%>object/object attribute<%}%> 
+ * - methods for publishing/subscribing to any <% if(isinteraction){ %>interaction<%}else{%>object/object attribute<%}%>
  * defined in the federation (see
  * {@link #publish( String className, RTIambassador rti )} for example).
  * - methods for getting/setting any <%=isinteraction?"parameter":"attribute"%> in the <%=isinteraction?"interaction":"object"%> to
@@ -70,15 +70,15 @@ public class <%=isinteraction?"Interaction":"Object"%>Root implements <%=isinter
 
 	private static int logId = 0;
 	private static int _globalUniqueID = 0;
-	
+
 	private static int generateUniqueID() {
 		return _globalUniqueID++;
 	}
-	
+
 	private int _uniqueID;
-	
+
 	public int getUniqueID() { return _uniqueID; }
-	
+
 	protected static RtiFactory _factory;
 	static {
 		boolean factoryNotAcquired = true;
@@ -102,7 +102,7 @@ public class <%=isinteraction?"Interaction":"Object"%>Root implements <%=isinter
 	protected static Map< String, Integer > _classNameHandleMap = new HashMap< String, Integer >();
 	protected static Map< Integer, String > _classHandleNameMap = new HashMap< Integer, String >();
 	protected static Map< Integer, String > _classHandleSimpleNameMap = new HashMap< Integer, String >();
-	
+
 	protected static Map< String, Integer > _datamemberNameHandleMap = new HashMap< String, Integer >();
 	protected static Map< Integer, String > _datamemberHandleNameMap = new HashMap< Integer, String >();
 	protected static Map< String, String > _datamemberTypeMap = new HashMap< String, String >();
@@ -113,7 +113,7 @@ public class <%=isinteraction?"Interaction":"Object"%>Root implements <%=isinter
 
 	protected static Map< String, AttributeHandleSet > _classNamePublishedAttributeMap = new HashMap< String, AttributeHandleSet >();
 	protected static Map< String, AttributeHandleSet > _classNameSubscribedAttributeMap = new HashMap< String, AttributeHandleSet >();
-	
+
     private static Map< Integer, ObjectRoot > _objectMap = new HashMap< Integer, ObjectRoot >();
 
 	protected static class Attribute<T> {                                                                                 // NOMELD
@@ -140,17 +140,19 @@ public class <%=isinteraction?"Interaction":"Object"%>Root implements <%=isinter
 			_oldValueInit = true;                                                                                          // NOMELD
 		}                                                                                                                  // NOMELD
 		                                                                                                                   // NOMELD
-		public boolean shouldBeUpdated( boolean force ) { return force || !_oldValueInit || !_oldValue.equals( _value ); } // NOMELD		
+		public boolean shouldBeUpdated( boolean force ) { return force || !_oldValueInit || !_oldValue.equals( _value ); } // NOMELD
 	}                                                                                                                      // NOMELD
-<%}%>	
-	
+<%}%>
+
 	<% /*classcommon(classname=%=isinteraction?"Interaction":"Object"%+"Root",hlaclassname=%=isinteraction?"Interaction":"Object"%+"Root",...)*/ %>
 	<%- ejs.render(TEMPLATES["java/classcommon.java.ejs"],
 		{
 			isinteraction: isinteraction,
 			classname: isinteraction?"InteractionRoot":"ObjectRoot",
 			parentclassname: "",
-			hlaclassname: isinteraction?"InteractionRoot":"ObjectRoot",
+            // HLA1516e requires "HLAinteractionRoot"/"HLAobjectRoot" at root level
+            // of interactions and object attribute reflections in FOM/SOM XML
+            hlaclassname: isinteraction?"HLAinteractionRoot":"HLAobjectRoot",
 			datamembers: [],
 			alldatamembers: []
 	}) %>
@@ -175,7 +177,7 @@ public class <%=isinteraction?"Interaction":"Object"%>Root implements <%=isinter
 	public static Set< String > get_<%=isinteraction?"parameter":"attribute"%>_names( String className ) {
 		return new HashSet< String >(  _datamemberClassNameSetMap.get( className )  );
 	}
-	
+
 	/**
 	* Returns a set of strings containing the names of all of the <%=isinteraction?"parameter":"attribute"%>s
 	* in the <%=isinteraction?"interaction":"object"%> class specified by className.
@@ -188,7 +190,7 @@ public class <%=isinteraction?"Interaction":"Object"%>Root implements <%=isinter
 	public static Set< String > get_all_<%=isinteraction?"parameter":"attribute"%>_names( String className ) {
 		return new HashSet< String >(  _allDatamemberClassNameSetMap.get( className )  );
 	}
-	
+
 	/**
 	* Returns the fully-qualified name of the <%=isinteraction?"interaction":"object"%> class corresponding
 	* to the RTI-defined classHandle.
@@ -215,7 +217,7 @@ public class <%=isinteraction?"Interaction":"Object"%>Root implements <%=isinter
 	public static String get_simple_class_name( int classHandle ) {
 		return _classHandleSimpleNameMap.get( classHandle );
 	}
-	
+
 	/**
 	* Returns the integer handle (RTI defined) of the <%=isinteraction?"interaction":"object"%> class
 	* corresponding to the fully-qualified <%=isinteraction?"interaction":"object"%> class name in className.
@@ -225,16 +227,16 @@ public class <%=isinteraction?"Interaction":"Object"%>Root implements <%=isinter
 	* @return the RTI-defined handle of the <%=isinteraction?"interaction":"object"%> class
 	*/
 	public static int get_handle( String className ) {
-	
+
 		Integer classHandle = _classNameHandleMap.get( className );
 		if ( classHandle == null ) {
 			System.err.println( "Bad class name \"" + className + "\" on get_handle." );
 			return -1;
 		}
-		
-		return classHandle;		
+
+		return classHandle;
 	}
-	
+
 	/**
 	* Returns the name of <% if(isinteraction){ %>a parameter<%}else{%>an attribute<%}%> corresponding to
 	* its handle (RTI assigned) in datamemberHandle.
@@ -246,7 +248,7 @@ public class <%=isinteraction?"Interaction":"Object"%>Root implements <%=isinter
 	public static String get_<%=isinteraction?"parameter":"attribute"%>_name( int datamemberHandle ) {
 		return _datamemberHandleNameMap.get( datamemberHandle );
 	}
-	
+
 	/**
 	* Returns the handle of <% if(isinteraction){ %>a parameter<%}else{%>an attribute<%}%> (RTI assigned) given
 	* its <%=isinteraction?"interaction":"object"%> class name and <%=isinteraction?"parameter":"attribute"%> name
@@ -256,19 +258,19 @@ public class <%=isinteraction?"Interaction":"Object"%>Root implements <%=isinter
 	* @return the handle (RTI assigned) of the <%=isinteraction?"parameter":"attribute"%> "datamemberName" of <%=isinteraction?"interaction":"object"%> class "className"
 	*/
 	public static int get_<%=isinteraction?"parameter":"attribute"%>_handle( String className, String datamemberName ) {
-	
+
 		Integer datamemberHandle = _datamemberNameHandleMap.get( className + "," + datamemberName );
 		if ( datamemberHandle == null ) {
 			System.err.println( "Bad <%=isinteraction?"parameter":"attribute"%> \"" + datamemberName + "\" for class \"" + className + "\" on get_<%=isinteraction?"parameter":"attribute"%>_handle." );
 			return -1;
 		}
-		
-		return datamemberHandle;		
+
+		return datamemberHandle;
 	}
-	
+
 	private static Class<?>[] pubsubArguments = new Class<?>[] { RTIambassador.class };
-	
-	
+
+
 	/**
 	* Publishes the <%=isinteraction?"interaction":"object"%> class named by "className" for a federate.
 	* This can also be performed by calling the publish( RTIambassador rti )
@@ -320,7 +322,7 @@ public class <%=isinteraction?"Interaction":"Object"%>Root implements <%=isinter
 			e.printStackTrace();
 		}
 	}
-	
+
 	/**
 	* Subscribes federate to the <%=isinteraction?"interaction":"object"%> class names by "className"
 	* This can also be performed by calling the subscribe( RTIambassador rti )
@@ -346,7 +348,7 @@ public class <%=isinteraction?"Interaction":"Object"%>Root implements <%=isinter
 			e.printStackTrace();
 		}
 	}
-	
+
 	/**
 	* Unsubscribes federate from the <%=isinteraction?"interaction":"object"%> class names by "className"
 	* This can also be performed by calling the unsubscribe( RTIambassador rti )
@@ -382,7 +384,7 @@ public class <%=isinteraction?"Interaction":"Object"%>Root implements <%=isinter
 	* {@link ObjectRoot#publish( String className, RTIambassador RTI )} and
 	* {@link ObjectRoot#publish( RTIambassador RTI )} for examples of how to
 	* publish the object class.
-	* 
+	*
 	* @param className name of object class for which the attribute named by
 	* "attributeName" is to be published
 	* @param attributeName name of the attribute to be published
@@ -393,7 +395,7 @@ public class <%=isinteraction?"Interaction":"Object"%>Root implements <%=isinter
 		} catch ( Exception e ) {
 			System.err.println( "ERROR:  ObjectRoot.publish:  could not publish class \"" + className + "\" \"" + attributeName + "\" attribute." );
 			e.printStackTrace();
-		}		
+		}
 	}
 
 	/**
@@ -408,7 +410,7 @@ public class <%=isinteraction?"Interaction":"Object"%>Root implements <%=isinter
 	* {@link ObjectRoot#publish( String className, RTIambassador RTI )} and
 	* {@link ObjectRoot#publish( RTIambassador RTI )} for examples of how to
 	* publish the object class.
-	* 
+	*
 	* @param className name of object class for which the attribute named by
 	* "attributeName" is to be unpublished (by a federate)
 	* @param attributeName name of the attribute to be unpublished
@@ -419,7 +421,7 @@ public class <%=isinteraction?"Interaction":"Object"%>Root implements <%=isinter
 		} catch ( Exception e ) {
 			System.err.println( "ERROR:  ObjectRoot.unpublish:  could not unpublish class \"" + className + "\" \"" + attributeName + "\" attribute." );
 			e.printStackTrace();
-		}		
+		}
 	}
 
 	/**
@@ -434,7 +436,7 @@ public class <%=isinteraction?"Interaction":"Object"%>Root implements <%=isinter
 	* See {@link ObjectRoot#subscribe( String className, RTIambassador RTI )} and
 	* {@link ObjectRoot#subscribe( RTIambassador RTI )} for examples of how to
 	* subscribe to the object class.
-	* 
+	*
 	* @param className name of object class for which the attribute named by
 	* "attributeName" is to be subcribed
 	* @param attributeName name of the attribute to be published
@@ -445,7 +447,7 @@ public class <%=isinteraction?"Interaction":"Object"%>Root implements <%=isinter
 		} catch ( Exception e ) {
 			System.err.println( "ERROR:  ObjectRoot.subscribe:  could not subscribe to class \"" + className + "\" \"" + attributeName + "\" attribute." );
 			e.printStackTrace();
-		}		
+		}
 	}
 
 	/**
@@ -460,7 +462,7 @@ public class <%=isinteraction?"Interaction":"Object"%>Root implements <%=isinter
 	* See {@link ObjectRoot#subscribe( String className, RTIambassador RTI )} and
 	* {@link ObjectRoot#subscribe( RTIambassador RTI )} for examples of how to
 	* subscribe to the object class.
-	* 
+	*
 	* @param className name of object class for which the attribute named by
 	* "attributeName" is to be subcribed
 	* @param attributeName name of the attribute to be published
@@ -471,10 +473,10 @@ public class <%=isinteraction?"Interaction":"Object"%>Root implements <%=isinter
 		} catch ( Exception e ) {
 			System.err.println( "ERROR:  ObjectRoot.unsubscribe:  could not unsubscribe class \"" + className + "\" \"" + attributeName + "\" attribute." );
 			e.printStackTrace();
-		}		
+		}
 	}
 <%}%>
-	
+
 	private static <%=isinteraction?"Interaction":"Object"%>Root create_<%=isinteraction?"interaction":"object"%>( Class<?> rtiClass ) {
 		<%=isinteraction?"Interaction":"Object"%>Root classRoot = null;
 		try {
@@ -483,11 +485,11 @@ public class <%=isinteraction?"Interaction":"Object"%>Root implements <%=isinter
 			System.err.println( "ERROR:  <%=isinteraction?"Interaction":"Object"%>Root:  create_<%=isinteraction?"interaction":"object"%>:  could not create/cast new <%=isinteraction?"Interaction":"Object"%>" );
 			e.printStackTrace();
 		}
-		
+
 		return classRoot;
 	}
 
-	private static <%=isinteraction?"Interaction":"Object"%>Root create_<%=isinteraction?"interaction":"object"%>( Class<?> rtiClass, LogicalTime logicalTime ) {	
+	private static <%=isinteraction?"Interaction":"Object"%>Root create_<%=isinteraction?"interaction":"object"%>( Class<?> rtiClass, LogicalTime logicalTime ) {
 		<%=isinteraction?"Interaction":"Object"%>Root classRoot = create_<%=isinteraction?"interaction":"object"%>( rtiClass );
 		if ( classRoot != null ) classRoot.setTime( logicalTime );
 		return classRoot;
@@ -498,14 +500,14 @@ public class <%=isinteraction?"Interaction":"Object"%>Root implements <%=isinter
 		classRoot.set<%=isinteraction?"Parameter":"Attribute"%>s( datamemberMap );
 		return classRoot;
 	}
-	
+
 	private static <%=isinteraction?"Interaction":"Object"%>Root create_<%=isinteraction?"interaction":"object"%>( Class<?> rtiClass, <%=isinteraction?"ReceivedInteraction":"ReflectedAttributes"%> datamemberMap, LogicalTime logicalTime ) {
 		<%=isinteraction?"Interaction":"Object"%>Root classRoot = create_<%=isinteraction?"interaction":"object"%>( rtiClass );
 		classRoot.set<%=isinteraction?"Parameter":"Attribute"%>s( datamemberMap );
 		classRoot.setTime( logicalTime );
 		return classRoot;
 	}
-	
+
 	/**
 	* Create an <%=isinteraction?"interaction":"object"%> that is in instance of <%=isinteraction?"interaction":"object"%> class
 	* "className". An <%=isinteraction?"Interaction":"Object"%>Root reference is returned,
@@ -656,7 +658,7 @@ public class <%=isinteraction?"Interaction":"Object"%>Root implements <%=isinter
         }
         return objectRoot;
     }
-    
+
     /**
     * Retrieves the object instance corresponding to "object_handle" from an
     * internal table in the ObjectRoot class, updates its attribute values using
@@ -731,24 +733,24 @@ public class <%=isinteraction?"Interaction":"Object"%>Root implements <%=isinter
 	public void requestUpdate( RTIambassador rti ) {
 		boolean requestNotSubmitted = true;
 		while( requestNotSubmitted ) {
-			try {		
+			try {
 				rti.requestObjectAttributeValueUpdate( getObjectHandle(), getSubscribedAttributeHandleSet() );
 				requestNotSubmitted = false;
 			} catch ( FederateNotExecutionMember f ) {
 				System.err.println( "ERROR: " + getClassName() + "request for update failed:  Federate Not Execution Member" );
 				f.printStackTrace();
-				return;				
+				return;
 			} catch ( ObjectNotKnown o ) {
 				System.err.println( "ERROR: " + getClassName() + "request for update failed:  Object Not Known" );
 				o.printStackTrace();
-				return;				
+				return;
 			} catch ( AttributeNotDefined a ) {
 				System.err.println( "ERROR: " + getClassName() + "request for update failed:  Name Not Found" );
 				a.printStackTrace();
-				return;				
+				return;
 			} catch ( Exception e ) {
 				e.printStackTrace();
-				try { Thread.sleep( 50 ); } catch( Exception e1 ) { }					
+				try { Thread.sleep( 50 ); } catch( Exception e1 ) { }
 			}
 		}
 	}
@@ -769,8 +771,8 @@ public class <%=isinteraction?"Interaction":"Object"%>Root implements <%=isinter
 	public static ObjectRoot getObject( int object_handle ) {
 		return _objectMap.get( object_handle );
 	}
-	
-	
+
+
 	/**
 	* Returns the object instance corresponding to the "object_handle" (RTI
 	* assigned) from a map internal to the ObjectRoot class AND REMOVES IT
@@ -788,7 +790,7 @@ public class <%=isinteraction?"Interaction":"Object"%>Root implements <%=isinter
     public static ObjectRoot removeObject( int object_handle ) {
         return _objectMap.remove( object_handle );
     }
-    
+
 
     private int _object_handle;
 
@@ -805,11 +807,11 @@ public class <%=isinteraction?"Interaction":"Object"%>Root implements <%=isinter
 	* @return the handle (RTI assigned) of this object class instance.
 	*/
     public int getObjectHandle() { return _object_handle; }
-	
+
 <%}%>
 
 	private double _time = -1;
-	
+
 	/**
 	* Returns the timestamp for this <%=isinteraction?"interaction":"object"%>.  "receive order" <%=isinteraction?"interaction":"object"%>s
 	* should have a timestamp of -1.
@@ -817,7 +819,7 @@ public class <%=isinteraction?"Interaction":"Object"%>Root implements <%=isinter
 	* @return timestamp for this <%=isinteraction?"interaction":"object"%>
 	*/
 	public double getTime() { return _time; }
-	
+
 	/**
 	* Sets the timestamp of this <%=isinteraction?"interaction":"object"%> to "time".
 	*
@@ -843,7 +845,7 @@ public class <%=isinteraction?"Interaction":"Object"%>Root implements <%=isinter
 	public <%=isinteraction?"Interaction":"Object"%>Root() {
 		_uniqueID = generateUniqueID();
 	}
-	
+
 	/**
 	* Creates a copy of an <%=isinteraction?"Interaction":"Object"%>Root instance.  As an
 	* <%=isinteraction?"Interaction":"Object"%>Root instance contains no <%=isinteraction?"parameter":"attribute"%>s,
@@ -857,7 +859,7 @@ public class <%=isinteraction?"Interaction":"Object"%>Root implements <%=isinter
 		this();
 		if ( initFlag ) set<%=isinteraction?"Parameter":"Attribute"%>s( datamemberMap );
 	}
-	
+
 	protected <%=isinteraction?"Interaction":"Object"%>Root( <%=isinteraction?"ReceivedInteraction":"ReflectedAttributes"%> datamemberMap, LogicalTime logicalTime, boolean initFlag ) {
 		this();
 		setTime( logicalTime );
@@ -887,7 +889,7 @@ public class <%=isinteraction?"Interaction":"Object"%>Root implements <%=isinter
 	* @param datamemberMap contains <%=isinteraction?"parameter":"attribute"%> values for the newly created
 	* <%=isinteraction?"interaction":"object"%>
 	* @param logicalTime initial timestamp for newly created <%=isinteraction?"interaction":"object"%> instance
-	*/	
+	*/
 	public <%=isinteraction?"Interaction":"Object"%>Root( <%=isinteraction?"ReceivedInteraction":"ReflectedAttributes"%> datamemberMap, LogicalTime logicalTime ) {
 		this( datamemberMap, logicalTime, true );
 	}
@@ -914,7 +916,7 @@ public class <%=isinteraction?"Interaction":"Object"%>Root implements <%=isinter
 	public Object get<%=isinteraction?"Parameter":"Attribute"%>( int datamemberHandle ) {
 		return null;
 	}
-		
+
 	/**
 	* Set the values of the <%=isinteraction?"parameter":"attribute"%>s in this <%=isinteraction?"interaction":"object"%> using
 	* "datamemberMap".  "datamemberMap" is usually acquired as an argument to
@@ -947,7 +949,7 @@ public class <%=isinteraction?"Interaction":"Object"%>Root implements <%=isinter
 			System.err.println( "set:  bad <%=isinteraction?"parameter":"attribute"%> handle in class \"" + getClass().getName() + "\"" );
 		}
 	}
-	
+
 	/**
 	* Sets the value of the <%=isinteraction?"parameter":"attribute"%> named "datamemberName" to "value"
 	* in this <%=isinteraction?"interaction":"object"%>.  "value" is converted to data type of "datamemberName"
@@ -999,7 +1001,7 @@ public class <%=isinteraction?"Interaction":"Object"%>Root implements <%=isinter
 	protected Supplied<%=isinteraction?"Parameter":"Attribute"%>s createSuppliedDatamembers(<% if(isinteraction){ %><%}else{%>boolean force<%}%>) {
 		return _factory.createSupplied<%=isinteraction?"Parameter":"Attribute"%>s();
 	}
-	
+
 <% if(isinteraction){ %>
 	/**
 	* Sends this interaction to the RTI, with the specified timestamp "time".
@@ -1045,13 +1047,13 @@ public class <%=isinteraction?"Interaction":"Object"%>Root implements <%=isinter
 			}
 		}
 	}
-	
+
 	protected static String fedName = null;
 	public static Boolean enablePubLog = false;
 	public static Boolean enableSubLog = false;
 	public static String pubLogLevel = null;
 	public static String subLogLevel = null;
-	
+
 	public static void enablePublishLog(String interaction, String fed, String thislevel, String globallevel){
 		if(globallevel == null || "".equals(globallevel)) return;
 		if(C2WLogger.getLogLevel(thislevel)> C2WLogger.getLogLevel(globallevel)) return;
@@ -1060,7 +1062,7 @@ public class <%=isinteraction?"Interaction":"Object"%>Root implements <%=isinter
 		pubLogLevel = thislevel;
 		C2WLogger.addLog(interaction, fedName, true);
 	}
-	
+
 	public static void enableSubscribeLog(String interaction, String fed, String thislevel, String globallevel){
 		if(globallevel == null || "".equals(globallevel)) return;
 		if(C2WLogger.getLogLevel(thislevel)> C2WLogger.getLogLevel(globallevel)) return;
@@ -1069,7 +1071,7 @@ public class <%=isinteraction?"Interaction":"Object"%>Root implements <%=isinter
 		subLogLevel = thislevel;
 		C2WLogger.addLog(interaction, fedName, false);
 	}
-	
+
 	protected void createLog(final SuppliedParameters datamembers, final double time) {
 		if(!enablePubLog) return;
         Thread t = new Thread(new Runnable() {                                                                                 // NOMELD
@@ -1092,7 +1094,7 @@ public class <%=isinteraction?"Interaction":"Object"%>Root implements <%=isinter
 					} else {
 						for(int ix =0; ix < datamembers.size();ix++){
 							String parameter = get_parameter_name(datamembers.getHandle( ix ) );
-							String value = new String(datamembers.getValue(ix));	
+							String value = new String(datamembers.getValue(ix));
 							String type = new String(_datamemberTypeMap.get(parameter));
 							C2WLogger.addLog( interactionId, time, parameter, value, type, pubLogLevel, logIdLocal );
 						}
@@ -1117,9 +1119,9 @@ public class <%=isinteraction?"Interaction":"Object"%>Root implements <%=isinter
 	*
 	* @param rti handle to the RTI, usu. obtained through the
 	* {@link SynchronizedFederate#getRTI()} call
-	*/ 
+	*/
     public void registerObject( RTIambassador rti ) {
-        
+
         while( !_isRegistered ) {
             try {
                 synchronized( rti ) {
@@ -1127,7 +1129,7 @@ public class <%=isinteraction?"Interaction":"Object"%>Root implements <%=isinter
                 }
                 _isRegistered = true;
                 _objectMap.put( getObjectHandle(), this );
-                
+
             } catch ( ObjectClassNotDefined o ) {
                 o.printStackTrace();
                 return;
@@ -1142,12 +1144,12 @@ public class <%=isinteraction?"Interaction":"Object"%>Root implements <%=isinter
                     Thread.sleep( 500 );
                 } catch ( InterruptedException e1 ) {
                     e1.printStackTrace();
-                } 
+                }
             }
         }
 
     }
-    
+
 	/**
 	* Unregisters this object with the RTI.  The RTI will destroy all information
 	* it contains regarding this object as a result.  This method is usually
@@ -1156,9 +1158,9 @@ public class <%=isinteraction?"Interaction":"Object"%>Root implements <%=isinter
 	*
 	* @param rti handle to the RTI, usu. obtained through the
 	* {@link SynchronizedFederate#getRTI()} call
-	*/ 
+	*/
     public void unregisterObject( RTIambassador rti ) {
-        
+
         while( _isRegistered ) {
             try {
                 synchronized( rti ) {
@@ -1166,7 +1168,7 @@ public class <%=isinteraction?"Interaction":"Object"%>Root implements <%=isinter
                 }
                 _isRegistered = false;
                 _objectMap.remove( getObjectHandle() );
-                
+
             } catch ( ObjectNotKnown o ) {
                 o.printStackTrace();
                 return;
@@ -1181,7 +1183,7 @@ public class <%=isinteraction?"Interaction":"Object"%>Root implements <%=isinter
                     Thread.sleep( 500 );
                 } catch ( InterruptedException e1 ) {
                     e1.printStackTrace();
-                } 
+                }
             }
         }
     }
@@ -1311,7 +1313,7 @@ public class <%=isinteraction?"Interaction":"Object"%>Root implements <%=isinter
 	protected static String _fedName = null;
 	protected static Map< String, String > _pubAttributeLogMap = new HashMap< String, String >();
 	protected static Map< String, String > _subAttributeLogMap = new HashMap< String, String >();
-	
+
 	public static void enablePublishLog(String object, String attribute, String fed, String thislevel, String globallevel){
 		if(globallevel == null || "".equals(globallevel)) return;
 		if(C2WLogger.getLogLevel(thislevel)> C2WLogger.getLogLevel(globallevel)) return;
@@ -1319,7 +1321,7 @@ public class <%=isinteraction?"Interaction":"Object"%>Root implements <%=isinter
 		_pubAttributeLogMap.put(attribute, thislevel);
 		C2WLogger.addLog(object, attribute, fed, true);
 	}
-	
+
 	public static void enableSubscribeLog(String object, String attribute, String fed, String thislevel, String globallevel){
 		if(globallevel == null || "".equals(globallevel)) return;
 		if(C2WLogger.getLogLevel(thislevel)> C2WLogger.getLogLevel(globallevel)) return;
@@ -1327,7 +1329,7 @@ public class <%=isinteraction?"Interaction":"Object"%>Root implements <%=isinter
 		_subAttributeLogMap.put(attribute, thislevel);
 		C2WLogger.addLog(object, attribute, fed, true);
 	}
-	
+
 	protected void createLog(final SuppliedAttributes suppliedAttributes, final double time) {
 		if(_pubAttributeLogMap.isEmpty()) return;
         Thread t = new Thread(new Runnable() {                                                       // NOMELD
@@ -1343,14 +1345,14 @@ public class <%=isinteraction?"Interaction":"Object"%>Root implements <%=isinter
 					synchronized( <%=isinteraction?"Interaction":"Object"%>Root.class ) {
 						logIdLocal = Integer.toString( logId++ );
 					}
-					for(int ix =0; ix < suppliedAttributes.size();ix++){							
-						String attribute = get_attribute_name(suppliedAttributes.getHandle( ix ) );			
+					for(int ix =0; ix < suppliedAttributes.size();ix++){
+						String attribute = get_attribute_name(suppliedAttributes.getHandle( ix ) );
 						if(!_pubAttributeLogMap.containsKey(attribute)) continue;
 						String id = _fedName+"_pub_"+getSimpleClassName()+"_"+attribute;
-						String value = new String(suppliedAttributes.getValue(ix));	
+						String value = new String(suppliedAttributes.getValue(ix));
 						String type = new String(_datamemberTypeMap.get(attribute));
 						String loglevel = _pubAttributeLogMap.get(attribute);
-						C2WLogger.addLog( id, time, attribute, value, type, loglevel, logIdLocal );				
+						C2WLogger.addLog( id, time, attribute, value, type, loglevel, logIdLocal );
 					}
 				} catch ( Exception e ) {
 					System.err.println( "ERROR:  " + getClass().getName() + ":  could not send interaction" );
@@ -1360,7 +1362,7 @@ public class <%=isinteraction?"Interaction":"Object"%>Root implements <%=isinter
         });
         t.start();
 	}
-	
+
 <%}%>
 
 	/**
@@ -1374,7 +1376,7 @@ public class <%=isinteraction?"Interaction":"Object"%>Root implements <%=isinter
 	*/
 	public <%=isinteraction?"Interaction":"Object"%>RootInterface cast( <%=isinteraction?"Interaction":"Object"%>Root rootInstance ) {
 		return rootInstance;
-	}		
+	}
 
 	/**
 	* For use with the melding API -- this method creates a new
@@ -1386,7 +1388,7 @@ public class <%=isinteraction?"Interaction":"Object"%>Root implements <%=isinter
 	*/
 	public <%=isinteraction?"Interaction":"Object"%>RootInterface create() {
 		return new <%=isinteraction?"Interaction":"Object"%>Root();
-	}		
+	}
 
 	public void copyFrom( Object object ) { }
 }

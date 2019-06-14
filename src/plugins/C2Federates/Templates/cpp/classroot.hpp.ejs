@@ -20,7 +20,7 @@
  * AND FITNESS FOR A PARTICULAR PURPOSE.  THE SOFTWARE PROVIDED HEREUNDER IS
  * ON AN "AS IS" BASIS, AND THE VANDERBILT UNIVERSITY HAS NO OBLIGATION TO
  * PROVIDE MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
- * 
+ *
  */
 
 /*
@@ -98,7 +98,7 @@
 
 #ifndef C2W_RTI_LOGGER_CLS
 #define C2W_RTI_LOGGER_CLS C2WConsoleLogger
-#endif 
+#endif
 
 #include "<%=isinteraction?"Interaction":"Object"%>If.hpp"
 
@@ -111,15 +111,15 @@ public:
 
 	typedef boost::shared_ptr< <%=isinteraction?"Interaction":"Object"%>Root > SP;
 	typedef boost::shared_ptr< RTI::<%=isinteraction?"Parameter":"Attribute"%>HandleValuePairSet > <%=isinteraction?"Parameter":"Attribute"%>HandleValuePairSetSP;
-	
+
 	typedef SP (*FactoryFunctionPtr)( void );
 	typedef std::map< std::string, FactoryFunctionPtr > ClassNameFactoryMap;
 
 	typedef void (*PubsubFunctionPtr)( RTI::RTIambassador * );
 	typedef std::map< std::string, PubsubFunctionPtr > ClassNamePubSubMap;
 	typedef std::map< std::string, std::string> DatamemberTypeMap;
-	
-	
+
+
 <% if(!isinteraction){ %>
 	typedef std::map< std::string, RTI::AttributeHandleSet * > ClassNameAttributesPtrMap;
 	typedef std::map< int, SP > ObjectMap;
@@ -140,7 +140,7 @@ protected:
 		static ClassNameFactoryMap classNameFactoryMap;
 		return classNameFactoryMap;
 	}
-	
+
 	static ClassNamePubSubMap &getClassNamePublishMap( void ) {
 		static ClassNamePubSubMap classNamePublishMap;
 		return classNamePublishMap;
@@ -198,7 +198,7 @@ protected:
 		static NameStringVectorPtrMap classNameSubscribeAttributeNameVectorPtrMap;
 		return classNameSubscribeAttributeNameVectorPtrMap;
 	}
-	
+
 	static ClassNameAttributesPtrMap &getClassNamePublishedAttributesPtrMap( void ) {
 		static ClassNameAttributesPtrMap classNamePublishedAttributesPtrMap;
 		return classNamePublishedAttributesPtrMap;
@@ -220,22 +220,22 @@ protected:
 		T _oldValue;
 		bool _oldValueInit;
 		double _time;
-	
+
 	public:
-		
+
 		Attribute( void ) : _value( 0 ), _oldValueInit( false ), _time( -1 ) { }
-		
+
 		T getValue( void ) const { return _value; }
 		void setValue( T value ) { _value = value; }
-		
+
 		double getTime( void ) { return _time; }
 		void setTime( double time ) { _time = time; }
-		
+
 		void setHasBeenUpdated( void ) {
 			_oldValue = _value;
 			_oldValueInit = true;
 		}
-		
+
 		bool shouldBeUpdated( bool force ) { return force || !_oldValueInit || _oldValue != _value; }
 	};
 
@@ -246,35 +246,37 @@ protected:
 		std::string _oldValue;
 		bool _oldValueInit;
 		double _time;
-	
+
 	public:
-		
+
 		Attribute( void ) : _oldValueInit( false ), _time( -1 ) { }
-		
+
 		const std::string &getValue( void ) const { return _value; }
 		void setValue( const std::string &value ) { _value = value; }
-		
+
 		double getTime( void ) { return _time; }
 		void setTime( double time ) { _time = time; }
-		
+
 		void setHasBeenUpdated( void ) {
 			_oldValue = _value;
 			_oldValueInit = true;
 		}
-		
+
 		bool shouldBeUpdated( bool force ) { return force || !_oldValueInit || _oldValue != _value; }
 	};
-	
+
 <%}%>
-	
+
 <% /*classcommon(classname=apMap.classfirstupper+"Root",hlaclassname=apMap.classfirstupper+"Root",...)*/ -%>
 <%- ejs.render(
 	TEMPLATES["cpp/classcommon.hpp.ejs"],{
 		isinteraction: isinteraction,
 		classname: isinteraction?"InteractionRoot":"ObjectRoot",
-		parentclassname: "",
-		hlaclassname: isinteraction?"InteractionRoot":"ObjectRoot",
-		datamembers: [],
+        parentclassname: "",
+        // HLA1516e requires "HLAinteractionRoot"/"HLAobjectRoot" at root level
+        // of interactions and object attribute reflections in FOM/SOM XML
+        hlaclassname: isinteraction?"HLAinteractionRoot":"HLAobjectRoot",
+        datamembers: [],
 		alldatamembers: []
 }) %>
 public:
@@ -283,87 +285,87 @@ public:
 		NameStringVectorPtrMap::iterator nssItr = getDatamemberClassNameVectorPtrMap().find( className );
 		return nssItr == getDatamemberClassNameVectorPtrMap().end() ? StringVector() : *nssItr->second;
 	}
-	
+
 	static StringVector get_all_<%=isinteraction?"parameter":"attribute"%>_names( const std::string &className ) {
 		NameStringVectorPtrMap::iterator nssItr = getAllDatamemberClassNameVectorPtrMap().find( className );
 		return nssItr == getAllDatamemberClassNameVectorPtrMap().end() ? StringVector() : *nssItr->second;
 	}
-	
+
 	static std::string get_class_name( int classHandle ) {
 		IntegerStringMap::iterator ismItr = getClassHandleNameMap().find( classHandle );
 		return ismItr == getClassHandleNameMap().end() ? std::string() : ismItr->second;
 	}
-	
+
 	static int get_handle( const std::string &className ) {
-	
+
 		StringIntegerMap::iterator simItr = getClassNameHandleMap().find( className );
 		if ( simItr == getClassNameHandleMap().end() ) {
 			std::cerr << "Bad class name \"" << className << "\" on get_handle." << std::endl;
 			return -1;
 		}
-		
+
 		return simItr->second;
 	}
-	
+
 	static std::string get_<%=isinteraction?"parameter":"attribute"%>_name( int datamemberHandle ) {
 		IntegerStringMap::iterator ismItr = getDatamemberHandleNameMap().find( datamemberHandle );
 		return ismItr == getDatamemberHandleNameMap().end() ? std::string() : ismItr->second;
 	}
-	
+
 	static int get_<%=isinteraction?"parameter":"attribute"%>_handle( const std::string &className, const std::string &datamemberName ) {
-	
+
 		StringIntegerMap::iterator simItr = getDatamemberNameHandleMap().find( className + "." + datamemberName );
 		if ( simItr == getDatamemberNameHandleMap().end() ) {
 			std::cerr << "Bad <%=isinteraction?"parameter":"attribute"%> \"" << datamemberName << "\" for class \"" << className << "\" on get_<%=isinteraction?"parameter":"attribute"%>_handle." << std::endl;
 			return -1;
 		}
-		
+
 		return simItr->second;
 	}
-	
+
 	static void publish( const std::string &className, RTI::RTIambassador *rti ) {
 		ClassNamePubSubMap::iterator cpmItr = getClassNamePublishMap().find( className );
 		if ( cpmItr == getClassNamePublishMap().end() ) {
 			std::cerr << "Bad class name \"" << className << "\" on publish." << std::endl;
 			return;
 		}
-		
+
 		(*cpmItr->second)( rti );
 	}
-	
+
 	static void unpublish( const std::string &className, RTI::RTIambassador *rti ) {
 		ClassNamePubSubMap::iterator cpmItr = getClassNameUnpublishMap().find( className );
 		if ( cpmItr == getClassNameUnpublishMap().end() ) {
 			std::cerr << "Bad class name \"" << className << "\" on unpublish." << std::endl;
 			return;
 		}
-		
+
 		(*cpmItr->second)( rti );
 	}
-	
+
 	static void subscribe( const std::string &className, RTI::RTIambassador *rti ) {
 		ClassNamePubSubMap::iterator cpmItr = getClassNameSubscribeMap().find( className );
 		if ( cpmItr == getClassNameSubscribeMap().end() ) {
 			std::cerr << "Bad class name \"" << className << "\" on subscribe." << std::endl;
 			return;
 		}
-		
+
 		(*cpmItr->second)( rti );
 	}
-	
+
 	static void unsubscribe( const std::string &className, RTI::RTIambassador *rti ) {
 		ClassNamePubSubMap::iterator cpmItr = getClassNameUnsubscribeMap().find( className );
 		if ( cpmItr == getClassNameSubscribeMap().end() ) {
 			std::cerr << "Bad class name \"" << className << "\" on unsubscribe." << std::endl;
 			return;
 		}
-		
+
 		(*cpmItr->second)( rti );
 	}
 
 <% if(!isinteraction){ %>
 	static void publish( const std::string &className, const std::string &attributeName );
-	
+
 	static void unpublish( const std::string &className, const std::string &attributeName ) {
 		NameStringVectorPtrMap::iterator camItr = getClassNamePublishAttributeNameVectorPtrMap().find( className );
 		if ( camItr == getClassNamePublishAttributeNameVectorPtrMap().end() ) {
@@ -373,7 +375,7 @@ public:
 		camItr->second->erase( std::remove( camItr->second->begin(), camItr->second->end(), attributeName ), camItr->second->end() );
 	}
 	static void subscribe( const std::string &className, const std::string &attributeName );
-	
+
 	static void unsubscribe( const std::string &className, const std::string &attributeName ) {
 		NameStringVectorPtrMap::iterator camItr = getClassNameSubscribeAttributeNameVectorPtrMap().find( className );
 		if ( camItr == getClassNameSubscribeAttributeNameVectorPtrMap().end() ) {
@@ -383,7 +385,7 @@ public:
 		camItr->second->erase( std::remove( camItr->second->begin(), camItr->second->end(), attributeName ), camItr->second->end() );
 	}
 <%}%>
-	
+
 public:
 	static SP create_<%=isinteraction?"interaction":"object"%>( const std::string &className ) {
 		ClassNameFactoryMap::iterator cfmItr = getClassNameFactoryMap().find( className );
@@ -395,7 +397,7 @@ public:
 		if ( cfmItr == getClassNameFactoryMap().end() ) {
 			return SP( (<%=isinteraction?"Interaction":"Object"%>Root *)0 );
 		}
-		
+
 		SP sp = (*cfmItr->second)();
 		sp->setTime( dlc13FedTime.getTime() );
 		return sp;
@@ -424,20 +426,20 @@ public:
 
 <% if(!isinteraction){ %>
     static SP discover( int class_handle, int object_handle ) {
-    
+
     	SP sp = create_object( class_handle );
     	if ( sp != 0 ) {
     		getObjectMap().insert(  std::make_pair( object_handle, sp )  );
     	}
     	return sp;
     }
-    
+
     static SP reflect( int object_handle, const RTI::AttributeHandleValuePairSet &datamemberMap ) {
     	ObjectMap::iterator obmItr = getObjectMap().find( object_handle );
     	if ( obmItr == getObjectMap().end() ) {
     		return SP( (ObjectRoot *)0 );
     	}
-    	
+
     	SP sp = obmItr->second;
     	sp->setTime( -1 );
 		sp->setAttributes( datamemberMap );
@@ -453,7 +455,7 @@ public:
     	if ( obmItr == getObjectMap().end() ) {
     		return SP( (ObjectRoot *)0 );
     	}
-    	
+
     	SP sp = obmItr->second;
     	sp->setTime( theTime );
 		sp->setAttributes( datamemberMap );
@@ -466,18 +468,18 @@ public:
 		ObjectMap::iterator obmItr = getObjectMap().find( object_handle );
 		return obmItr == getObjectMap().end() ? SP( (ObjectRoot *)0 ) : obmItr->second;
 	}
-		    
+
     static SP removeObject( int object_handle ) {
 		ObjectMap::iterator obmItr = getObjectMap().find( object_handle );
 		if ( obmItr == getObjectMap().end() ) {
 			return SP( (ObjectRoot *)0 );
 		}
-		
+
 		SP sp = obmItr->second;
         getObjectMap().erase( obmItr );
         return sp;
     }
-    
+
 
 private:
     int _object_handle;
@@ -490,23 +492,23 @@ private:
 
 public:
     int getObjectHandle( void ) const { return _object_handle; }
-	
+
 <%}%>
 
 private:
 	double _time;
 	static C2WLogger* _logger;
 
-public:	
+public:
 	double getTime( void ) { return _time; }
-	
+
 	void setTime( double time ) { _time = time; }
 	void setTime( const RTIfedTime &dlc13FedTime ) {
 		setTime( dlc13FedTime.getTime() );
 	}
 
 	<%=isinteraction?"Interaction":"Object"%>Root( void ) : _time( -1 )<% if(!isinteraction){%>, _isRegistered( false )<%}%> { }
-	
+
 	<%=isinteraction?"Interaction":"Object"%>Root( const RTI::<%=isinteraction?"Parameter":"Attribute"%>HandleValuePairSet &datamemberMap ) : _time( -1 )<% if(!isinteraction){%>, _isRegistered( false )<%}%> {
 		set<%=isinteraction?"Parameter":"Attribute"%>s( datamemberMap );
 	}
@@ -521,18 +523,18 @@ public:
 	static SP create( const RTI::<%=isinteraction?"Parameter":"Attribute"%>HandleValuePairSet &datamemberMap, const RTIfedTime &dlc13FedTime ) {
 		return SP(  new <%=isinteraction?"Interaction":"Object"%>Root( datamemberMap, dlc13FedTime )  );
 	}
-	
+
 
 	virtual TypeMedley get<%=isinteraction?"Parameter":"Attribute"%>( const std::string &datamemberName ) const {
 		throw std::invalid_argument( getClassName() + " class has no <%=isinteraction?"parameter":"attribute"%> named \"" + datamemberName + "\"" );
 	}
-		
+
 	virtual TypeMedley get<%=isinteraction?"Parameter":"Attribute"%>( int datamemberHandle ) const {
 		throw std::invalid_argument(
 		 getClassName() + " class has no <%=isinteraction?"parameter":"attribute"%> with handle (" + boost::lexical_cast< std::string >( datamemberHandle ) + ")"
 		);
 	}
-		
+
 	void set<%=isinteraction?"Parameter":"Attribute"%>s( const RTI::<%=isinteraction?"Parameter":"Attribute"%>HandleValuePairSet &datamemberMap );
 
 private:
@@ -553,7 +555,7 @@ protected:
 	virtual bool set<%=isinteraction?"Parameter":"Attribute"%>Aux( int param_handle, const std::string &val ) {
 		return false;
 	}
-	
+
 	virtual bool set<%=isinteraction?"Parameter":"Attribute"%>Aux( const std::string &datamemberName, const std::string &value ) {
 		return false;
 	}
@@ -565,11 +567,11 @@ protected:
 	virtual <%=isinteraction?"Parameter":"Attribute"%>HandleValuePairSetSP createDatamemberHandleValuePairSet( RTI::ULong count<% if(!isinteraction){%>, bool force<%}%> ) {
 		return <%=isinteraction?"Parameter":"Attribute"%>HandleValuePairSetSP(  RTI::<%=isinteraction?"Parameter":"Attribute"%>SetFactory::create( count )  );
 	}
-	
+
 	virtual <%=isinteraction?"Parameter":"Attribute"%>HandleValuePairSetSP createDatamemberHandleValuePairSet( <% if(!isinteraction){%>bool force<%}%> ) {
 		return createDatamemberHandleValuePairSet( <% if(!isinteraction){%>force<%}%> );
 	}
-	
+
 <% if(isinteraction){ %>
 public:
 	void sendInteraction( RTI::RTIambassador *rti, double time );
@@ -577,19 +579,19 @@ public:
 
 private:
 	static std::string fedName;
-	
+
 public:
 	static bool enablePubLog;
 	static bool enableSubLog;
 	static std::string pubLogLevel;
-	static std::string subLogLevel;	
+	static std::string subLogLevel;
 
 public:
 	static void enablePublishLog(const std::string &interaction, const std::string &fed, const std::string &thislevel, const std::string &globallevel);
 	static void enableSubscribeLog(const std::string &interaction, const std::string &fed, const std::string &thislevel, const std::string &globallevel);
 
 	void createLog( double time, bool isPub = true );
-	
+
 <% }else{ %>
 private:
     bool _isRegistered;
@@ -612,7 +614,7 @@ public:
 
 private:
 	static std::string fedName;
-	
+
 public:
 	static void enablePublishLog(const std::string &object, const std::string &attribute, const std::string &fed, const std::string &thislevel, const std::string &globallevel);
 	static void enableSubscribeLog(const std::string &object, const std::string &attribute, const std::string &fed, const std::string &thislevel, const std::string &globallevel);
@@ -628,7 +630,7 @@ public:
 	}
 
 	void createLog( double time, bool isPub = true );
-	
+
 <%}%>
 
 };
