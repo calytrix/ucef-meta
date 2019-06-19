@@ -4,10 +4,11 @@
 <%= indent%>    <objectClass>
 <% /* ------------------------------------------------------------------------------------------ */ -%>
 <% /* I wish there were a better way of doing this next line - HLA1516e *requires* that the root */ -%>
-<% /* object node be called "HLAobjectRoot", and will cause exceptions to be thrown if           */ -%>
+<% /* interaction node be called "HLAobjectRoot", and will cause exceptions to be thrown if      */ -%>
 <% /* this is not the case. I can't find where 'ObjectRoot' is coming from outside of this       */ -%>
-<% /* template to correct the value before we start rendering the template, so for now the       */ -%>
-<% /* substitution is being done here, which is not what I would call a "great" solution.        */ -%>
+<% /* template (though I believe it is from the underlying WebGME model) to correct the value    */ -%>
+<% /* before we start rendering the template, so for now the substitution is being done here,    */ -%>
+<% /* which is not what I would call a "great" solution.                                         */ -%>
 <%= indent%>        <name><%= (name==='ObjectRoot'?'HLAobjectRoot':name) %></name>
 <% /* ------------------------------------------------------------------------------------------ */ -%>
 <%= indent%>        <sharing><%= sharingXml %></sharing><% -%>

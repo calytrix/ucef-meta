@@ -46,7 +46,6 @@ import java.util.Map;
 import java.util.Set;
 
 import gov.nist.ucef.hla.base.HLAObject;
-import gov.nist.ucef.hla.base.RTIAmbassadorWrapper;
 import gov.nist.ucef.hla.base.Types.DataType;
 
 public class <%= classname %> extends HLAObject
@@ -83,7 +82,7 @@ public class <%= classname %> extends HLAObject
     */
     public <%= classname %>()
     {
-        super( OBJECT_CLASS_NAME, null );
+        super( OBJECT_CLASS_NAME, null, null );
     }
 
     /**
@@ -172,7 +171,7 @@ public class <%= classname %> extends HLAObject
     *
     * @return the HLA object name identifying this object
     */
-    public static String reflectionClassName()
+    public static String objectClassName()
     {
         return OBJECT_CLASS_NAME;
     }

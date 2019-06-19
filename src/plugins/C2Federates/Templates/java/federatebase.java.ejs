@@ -62,11 +62,11 @@ import gov.nist.ucef.hla.base.HLAInteraction;
 import gov.nist.ucef.hla.base.HLAObject;
 import gov.nist.ucef.hla.ucef.NoOpFederate;
 
-<% if( publishedinteractiondata.length || subscribedinteractiondata.length ){ new Set([...publishedinteractiondata.map(x=>x.name), ...subscribedinteractiondata.map(x=>x.name)].sort()).forEach( function ( intClassName, idx ) { -%>
-import <%= groupId %>.interactions.<%= intClassName %>;
+<% if( subscribedinteractiondata.length ){ subscribedinteractiondata.map(x=>x.name).sort().forEach( function ( className, idx ) { -%>
+import <%= groupId %>.interactions.<%= className %>;
 <% }); } -%>
-<% if( publishedobjectdata.length || subscribedobjectdata.length ){ new Set([...publishedobjectdata.map(x=>x.name), ...subscribedobjectdata.map(x=>x.name)].sort()).forEach( function ( objClassName, idx ) { -%>
-import <%= groupId %>.reflections.<%= objClassName %>;
+<% if( subscribedinteractiondata.length ){ subscribedobjectdata.map(x=>x.name).sort().forEach( function ( className, idx ) { -%>
+import <%= groupId %>.reflections.<%= className %>;
 <% }); } -%>
 
 /**
@@ -79,7 +79,7 @@ import <%= groupId %>.reflections.<%= objClassName %>;
  *               Universal CPS Environment
  *                     for Federation
  */
-public class _<%= classname %> extends NoOpFederate
+public abstract class _<%= classname %> extends NoOpFederate
 {
     //----------------------------------------------------------
     //                   STATIC VARIABLES
@@ -95,10 +95,6 @@ public class _<%= classname %> extends NoOpFederate
     public _<%= classname %>()
     {
         super();
-        <% if(timeconstrained){ -%>enableTimeConstrained();<% } %>
-
-        <% if(timeregulating){ -%>enableTimeRegulation(getLookAhead());<% } %>
-
     }
 
     //----------------------------------------------------------
