@@ -159,7 +159,7 @@ public class <%= classname %> extends HLAInteraction
     */
     public <%= paramType %> <%= paramName %>OrDefault( <%= paramType %> defaultValue )
     {
-        return ( is<%= initialCapParamName %>Present() ) ? this.<%= paramName %>() : defaultValue;
+        return is<%= initialCapParamName %>Present() ? this.<%= paramName %>() : defaultValue;
     }
 <% }); -%>
 
