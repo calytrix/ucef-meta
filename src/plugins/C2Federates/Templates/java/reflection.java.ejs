@@ -159,7 +159,7 @@ public class <%= classname %> extends HLAObject
     */
     public <%= paramType %> <%= attrName %>OrDefault( <%= paramType %> defaultValue )
     {
-        try { return this.<%= attrName %>(); } catch( Exception e) { return defaultValue; }
+        return is<%= initialCapAttrName %>Present() ? this.<%= attrName %>() : defaultValue;
     }
 <% }); -%>
 
